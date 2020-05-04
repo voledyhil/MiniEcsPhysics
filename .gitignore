@@ -1,0 +1,12 @@
+.idea
+.idea
+Library
+Assets/Plugins
+Logs
+Temp
+.DS_Store
+obj
+Assembly-CSharp.csproj
+
+MiniEcsPhysics.sln
+Assets/MiniEcs
