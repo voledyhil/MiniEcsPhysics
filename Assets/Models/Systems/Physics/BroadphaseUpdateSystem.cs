@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using MiniEcs.Core;
+using MiniEcs.Core.Systems;
 
-namespace Models.Systems
+namespace Models.Systems.Physics
 {
+    [EcsUpdateInGroup(typeof(PhysicsSystemGroup))]
     [EcsUpdateAfter(typeof(IntegrateVelocitySystem))]
     [EcsUpdateBefore(typeof(BroadphaseCalculatePairSystem))]
     public class BroadphaseUpdateSystem : IEcsSystem
@@ -23,17 +25,15 @@ namespace Models.Systems
 
             foreach (EcsEntity entity in world.Filter(_entitiesFilter))
             {
-                TranslationComponent translation = (TranslationComponent) entity[ComponentType.Translation];
-                RotationComponent rotation = (RotationComponent) entity[ComponentType.Rotation];
-                ColliderComponent collider = (ColliderComponent) entity[ComponentType.Collider];
-                RigBodyComponent rigBody = (RigBodyComponent) entity[ComponentType.RigBody];
-                BroadphaseRefComponent broadphaseRef = (BroadphaseRefComponent) entity[ComponentType.BroadphaseRef];
+                TranslationComponent tr = (TranslationComponent) entity[ComponentType.Translation];
+                RotationComponent rot = (RotationComponent) entity[ComponentType.Rotation];
+                ColliderComponent col = (ColliderComponent) entity[ComponentType.Collider];
+                RigBodyComponent rig = (RigBodyComponent) entity[ComponentType.RigBody];
+                BroadphaseRefComponent brRef = (BroadphaseRefComponent) entity[ComponentType.BroadphaseRef];
 
-                AABB aabb = new AABB(collider.Size, translation.Value,
-                    collider.ColliderType == ColliderType.Rect ? rotation.Value : 0f);
+                AABB aabb = new AABB(col.Size, tr.Value, col.ColliderType == ColliderType.Rect ? rot.Value : 0f);
 
-
-                List<SAPChunk> oldChunks = broadphaseRef.Items;
+                List<SAPChunk> oldChunks = brRef.Items;
                 List<SAPChunk> newChunks = new List<SAPChunk>(BroadphaseHelper.GetChunks(aabb, bpChunks));
 
                 foreach (SAPChunk chunk in newChunks)
@@ -63,8 +63,8 @@ namespace Models.Systems
                         {
                             AABB = aabb, 
                             Id = entity.Id, 
-                            IsStatic = MathHelper.Equal(rigBody.InvMass, 0),
-                            Layer = collider.Layer
+                            IsStatic = MathHelper.Equal(rig.InvMass, 0),
+                            Layer = col.Layer
                         };
                     }
                 }
@@ -74,20 +74,10 @@ namespace Models.Systems
                     if (chunk == null)
                         continue;
 
-                    for (int i = 0; i < chunk.Length; i++)
-                    {
-                        BroadphaseAABB item = chunk.Items[i];
-                        if (item.Id != entity.Id)
-                            continue;
-
-                        chunk.NeedRebuild = true;
-                        chunk.IsDirty = true;
-                        chunk.Items[i].Id = uint.MaxValue;
-                        break;
-                    }
+                    BroadphaseHelper.RemoveFormChunk(chunk, entity.Id);
                 }
 
-                broadphaseRef.Items = newChunks;
+                brRef.Items = newChunks;
             }
         }
     }

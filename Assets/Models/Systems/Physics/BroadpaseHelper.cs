@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Unity.Mathematics;
 
-namespace Models.Systems
+namespace Models.Systems.Physics
 {
     public static class BroadphaseHelper
     {
@@ -62,6 +62,21 @@ namespace Models.Systems
             }
             
             chunk.Length = freeIndex;
+        }
+        
+        public static void RemoveFormChunk(SAPChunk chunk, uint entityId)
+        {
+            for (int i = 0; i < chunk.Length; i++)
+            {
+                BroadphaseAABB item = chunk.Items[i];
+                if (item.Id != entityId)
+                    continue;
+
+                chunk.NeedRebuild = true;
+                chunk.IsDirty = true;
+                chunk.Items[i].Id = uint.MaxValue;
+                break;
+            }
         }
     }
 }

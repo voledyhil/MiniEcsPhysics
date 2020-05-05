@@ -2,9 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using MiniEcs.Core;
+using MiniEcs.Core.Systems;
 
-namespace Models.Systems
+namespace Models.Systems.Physics
 {
+    [EcsUpdateInGroup(typeof(PhysicsSystemGroup))]
     [EcsUpdateBefore(typeof(IntegrateVelocitySystem))]
     public class BroadphaseInitSystem : IEcsSystem
     {
@@ -26,13 +28,12 @@ namespace Models.Systems
 
             foreach (EcsEntity entity in entities)
             {
-                TranslationComponent translation = (TranslationComponent) entity[ComponentType.Translation];
-                RotationComponent rotation = (RotationComponent) entity[ComponentType.Rotation];
-                ColliderComponent collider = (ColliderComponent) entity[ComponentType.Collider];
-                RigBodyComponent rigBody = (RigBodyComponent) entity[ComponentType.RigBody];
+                TranslationComponent tr = (TranslationComponent) entity[ComponentType.Translation];
+                RotationComponent rot = (RotationComponent) entity[ComponentType.Rotation];
+                ColliderComponent col = (ColliderComponent) entity[ComponentType.Collider];
+                RigBodyComponent rig = (RigBodyComponent) entity[ComponentType.RigBody];
 
-                AABB aabb = new AABB(collider.Size, translation.Value,
-                    collider.ColliderType == ColliderType.Rect ? rotation.Value : 0f);
+                AABB aabb = new AABB(col.Size, tr.Value, col.ColliderType == ColliderType.Rect ? rot.Value : 0f);
 
                 List<SAPChunk> chunks = new List<SAPChunk>();
                 foreach (SAPChunk chunk in BroadphaseHelper.GetChunks(aabb, bpChunks))
@@ -44,8 +45,8 @@ namespace Models.Systems
                     {
                         AABB = aabb, 
                         Id = entity.Id, 
-                        IsStatic = MathHelper.Equal(rigBody.InvMass, 0),
-                        Layer = collider.Layer
+                        IsStatic = MathHelper.Equal(rig.InvMass, 0),
+                        Layer = col.Layer
                     };
                     chunk.IsDirty = true;
 

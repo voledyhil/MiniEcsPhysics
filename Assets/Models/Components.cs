@@ -14,8 +14,18 @@ namespace Models
         public const byte BroadphaseRef = 5;
         public const byte BroadphaseSAP = 6;
         public const byte Ray = 7;
+
+        public const byte Hero = 8;
+        public const byte Character = 9;
         
-        public const byte TotalComponents = 8;
+        public const byte StaticRect = 10;
+        public const byte StaticCircle = 11;
+        public const byte BlueRect = 12;
+        public const byte BlueCircle = 13;
+        public const byte YellowRect = 14;
+        public const byte YellowCircle = 15;
+        
+        public const byte TotalComponents = 16;
     }
 
     public class TranslationComponent : IEcsComponent
@@ -61,12 +71,6 @@ namespace Models
             }
         }
         public float InvInertia { get; private set; } = 0.1f;       
-
-        
-        public void ApplyForce(float2 f)
-        {
-            Velocity += f * InvMass;
-        }
     }
     
     public enum ColliderType : byte
@@ -85,31 +89,31 @@ namespace Models
     
     public class RectColliderComponent : ColliderComponent
     {
-        public float2x4 Vertices;
-        public float2x4 Normals;
+        public float2x4 Vertices { get; private set; }
+        public float2x4 Normals { get; private set; }
 
-        public RectColliderComponent(float2 size)
+        private float2 _size;
+        public float2 RectSize
         {
-            Size = size;
-            float w = size.x;
-            float h = size.y;
+            get => _size;
+            set
+            {
+                _size = value;
+                float w = _size.x;
+                float h = _size.y;
 			
-            Vertices = new float2x4(-w, w, w, -w, -h, -h, h, h);
-            Normals = new float2x4(0.0f, 1.0f, 0.0f, -1.0f, -1.0f, 0.0f, 1.0f, 0.0f);
+                Vertices = new float2x4(-w, w, w, -w, -h, -h, h, h);
+                Normals = new float2x4(0.0f, 1.0f, 0.0f, -1.0f, -1.0f, 0.0f, 1.0f, 0.0f);
+            }
         }
 
-        public override float2 Size { get; }
+        public override float2 Size => _size;
         public override ColliderType ColliderType => ColliderType.Rect;
     }
     
     public class CircleColliderComponent : ColliderComponent
     {
-        public readonly float Radius;
-        public CircleColliderComponent(float r)
-        {
-            Radius = r;
-        }
-
+        public float Radius;
         public override float2 Size => Radius;
         public override ColliderType ColliderType => ColliderType.Circle;
     }
@@ -175,4 +179,46 @@ namespace Models
         public bool Hit;
         public float2 HitPoint;
     }
+
+    public class HeroComponent : IEcsComponent
+    {
+        public byte Index => ComponentType.Hero;
+    }
+
+    public class CharacterComponent : IEcsComponent
+    {
+        public byte Index => ComponentType.Character;
+        public Character Ref;
+    }
+
+    public class StaticRectComponent : IEcsComponent
+    {
+        public byte Index => ComponentType.StaticRect;
+    }
+    
+    public class StaticCircleComponent : IEcsComponent
+    {
+        public byte Index => ComponentType.StaticCircle;
+    }
+    
+    public class BlueRectComponent : IEcsComponent
+    {
+        public byte Index => ComponentType.BlueRect;
+    }
+    
+    public class BlueCircleComponent : IEcsComponent
+    {
+        public byte Index => ComponentType.BlueCircle;
+    }
+    
+    public class YellowRectComponent : IEcsComponent
+    {
+        public byte Index => ComponentType.YellowRect;
+    }
+    
+    public class YellowCircleComponent : IEcsComponent
+    {
+        public byte Index => ComponentType.YellowCircle;
+    }
+
 }

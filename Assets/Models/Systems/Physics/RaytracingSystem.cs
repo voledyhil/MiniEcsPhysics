@@ -1,8 +1,10 @@
 using MiniEcs.Core;
+using MiniEcs.Core.Systems;
 using Unity.Mathematics;
 
-namespace Models.Systems
+namespace Models.Systems.Physics
 {
+    [EcsUpdateInGroup(typeof(PhysicsSystemGroup))]
     [EcsUpdateAfter(typeof(ResolveCollisionsSystem))]
     public class RaytracingSystem : IEcsSystem
     {
@@ -32,13 +34,13 @@ namespace Models.Systems
             
             foreach (EcsEntity entity in world.Filter(_rayFilter))
             {
-                TranslationComponent translation = (TranslationComponent) entity[ComponentType.Translation];
-                RotationComponent rotation = (RotationComponent) entity[ComponentType.Rotation];
-                
+                TranslationComponent tr = (TranslationComponent) entity[ComponentType.Translation];
+                RotationComponent rot = (RotationComponent) entity[ComponentType.Rotation];
                 RayComponent ray = (RayComponent) entity[ComponentType.Ray];
+                
                 ray.Hit = false;
-                ray.Source = translation.Value;
-                ray.Rotation = rotation.Value;
+                ray.Source = tr.Value;
+                ray.Rotation = rot.Value;
 
                 float minDist = float.MaxValue;
 
@@ -69,13 +71,12 @@ namespace Models.Systems
                         if (entity == targetEntity)
                             continue;
 
-                        translation = (TranslationComponent) targetEntity[ComponentType.Translation];
-                        rotation = (RotationComponent) targetEntity[ComponentType.Rotation];
-                        ColliderComponent collider = (ColliderComponent) targetEntity[ComponentType.Collider];
+                        tr = (TranslationComponent) targetEntity[ComponentType.Translation];
+                        rot = (RotationComponent) targetEntity[ComponentType.Rotation];
+                        ColliderComponent col = (ColliderComponent) targetEntity[ComponentType.Collider];
 
-                        int colliderType = (int) collider.ColliderType;
-                        if (!Intersections[colliderType]
-                            .HandleIntersection(ray, collider, translation, rotation, out float2 point))
+                        int colliderType = (int) col.ColliderType;
+                        if (!Intersections[colliderType].HandleIntersection(ray, col, tr, rot, out float2 point))
                             continue;
 
                         float dist = math.distancesq(p1, point);
@@ -95,13 +96,13 @@ namespace Models.Systems
             }
         }
 
-        private static void RayTrace(RayComponent rayComponent, out int[] chunks, out float2[] points)
+        private static void RayTrace(RayComponent ray, out int[] chunks, out float2[] points)
         {
             const float cellSize = BroadphaseHelper.CellSize;
             const float offset = ushort.MaxValue * cellSize;
             
-            float2 source = rayComponent.Source + offset;
-            float2 target = rayComponent.Target + offset;
+            float2 source = ray.Source + offset;
+            float2 target = ray.Target + offset;
 
             float x0 = source.x / cellSize;
             float y0 = source.y / cellSize;

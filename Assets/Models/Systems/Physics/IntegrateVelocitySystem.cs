@@ -1,7 +1,9 @@
 using MiniEcs.Core;
+using MiniEcs.Core.Systems;
 
-namespace Models.Systems
+namespace Models.Systems.Physics
 {
+    [EcsUpdateInGroup(typeof(PhysicsSystemGroup))]
     [EcsUpdateAfter(typeof(BroadphaseInitSystem))]
     [EcsUpdateBefore(typeof(BroadphaseUpdateSystem))]
     public class IntegrateVelocitySystem : IEcsSystem
