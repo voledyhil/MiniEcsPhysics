@@ -6,7 +6,7 @@ namespace Models
     {
         public float Penetration;
         public float2 Normal;
-        public float2x2 Contacts;
-        public int ContactCount;
+        public float2 HitPoint;
+        public bool Hit;
     }
 }

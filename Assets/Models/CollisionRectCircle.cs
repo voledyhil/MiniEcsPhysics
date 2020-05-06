@@ -7,7 +7,7 @@ namespace Models
         {
             base.HandleCollision(bCollider, bTransform, aCollider, aTransform, out contactInfo);
 
-            if (contactInfo.ContactCount <= 0) 
+            if (!contactInfo.Hit) 
                 return;
             
             contactInfo.Normal = -contactInfo.Normal;

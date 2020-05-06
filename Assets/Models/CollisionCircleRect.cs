@@ -12,7 +12,7 @@ namespace Models
 			CircleColliderComponent a = (CircleColliderComponent) aCollider;
 			RectColliderComponent b = (RectColliderComponent) bCollider;
 
-			contactInfo.ContactCount = 0;
+			contactInfo.Hit = false;
 
 			float2x2 rotate = float2x2.Rotate(bTransform.Rotation);
 			// Transform circle center to Polygon model space
@@ -46,9 +46,9 @@ namespace Models
 			// Check to see if center is within polygon
 			if (separation < MathHelper.EPSILON)
 			{
-				contactInfo.ContactCount = 1;
+				contactInfo.Hit = true;
 				contactInfo.Normal = -(MathHelper.Mul(rotate, b.Normals[faceNormal]));
-				contactInfo.Contacts[0] = contactInfo.Normal * a.Radius + aTransform.Position;
+				contactInfo.HitPoint = contactInfo.Normal * a.Radius + aTransform.Position;
 				contactInfo.Penetration = a.Radius;
 
 				return;
@@ -64,12 +64,12 @@ namespace Models
 				if (math.distancesq(center, v1) > a.Radius * a.Radius)
 					return;
 
-				contactInfo.ContactCount = 1;
+				contactInfo.Hit = true;
 				float2 n = v1 - center;
 				n = math.normalizesafe(MathHelper.Mul(rotate, n));
 				contactInfo.Normal = n;
 				v1 = MathHelper.Mul(rotate, v1) + bTransform.Position;
-				contactInfo.Contacts[0] = v1;
+				contactInfo.HitPoint = v1;
 			}
 
 			else if (dot2 <= 0.0f)
@@ -77,10 +77,10 @@ namespace Models
 				if (math.distancesq(center, v2) > a.Radius * a.Radius)
 					return;
 
-				contactInfo.ContactCount = 1;
+				contactInfo.Hit = true;
 				float2 n = v2 - center;
 				v2 = MathHelper.Mul(rotate, v2) + bTransform.Position;
-				contactInfo.Contacts[0] = v2;
+				contactInfo.HitPoint = v2;
 				n = math.normalizesafe(MathHelper.Mul(rotate, n));
 				contactInfo.Normal = n;
 			}
@@ -93,8 +93,8 @@ namespace Models
 
 				n = MathHelper.Mul(rotate, n);
 				contactInfo.Normal = -n;
-				contactInfo.Contacts[0] = contactInfo.Normal * a.Radius + aTransform.Position;
-				contactInfo.ContactCount = 1;
+				contactInfo.HitPoint = contactInfo.Normal * a.Radius + aTransform.Position;
+				contactInfo.Hit = true;
 			}
 		}
 	}

@@ -21,12 +21,10 @@ namespace Models
         
         public const byte StaticRect = 9;
         public const byte StaticCircle = 10;
-        public const byte BlueRect = 11;
-        public const byte BlueCircle = 12;
-        public const byte YellowRect = 13;
-        public const byte YellowCircle = 14;
+        public const byte BlueCircle = 11;
+        public const byte YellowCircle = 12;
         
-        public const byte TotalComponents = 15;
+        public const byte TotalComponents = 13;
     }
 
     public class TransformComponent : IEcsComponent
@@ -236,19 +234,9 @@ namespace Models
         public byte Index => ComponentType.StaticCircle;
     }
     
-    public class BlueRectComponent : IEcsComponent
-    {
-        public byte Index => ComponentType.BlueRect;
-    }
-    
     public class BlueCircleComponent : IEcsComponent
     {
         public byte Index => ComponentType.BlueCircle;
-    }
-    
-    public class YellowRectComponent : IEcsComponent
-    {
-        public byte Index => ComponentType.YellowRect;
     }
     
     public class YellowCircleComponent : IEcsComponent

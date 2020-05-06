@@ -10,11 +10,7 @@ public class PhysicsScene : MonoBehaviour
 {	
 	[SerializeField] public GameObject StaticRect;
 	[SerializeField] public GameObject StaticCircle;
-
-	[SerializeField] public GameObject DynamicYellowRect;
 	[SerializeField] public GameObject DynamicYellowCircle;
-
-	[SerializeField] public GameObject DynamicBlueBox;
 	[SerializeField] public GameObject DynamicBlueCircle;
 
 	[SerializeField] public GameObject Hero;
@@ -25,13 +21,9 @@ public class PhysicsScene : MonoBehaviour
 	[Range(0, 10000)]
 	[SerializeField] public int StaticCircleCount = 1000;
 	[Range(0, 10000)]
-	[SerializeField] public int DynamicBlueCircleCount = 500;
+	[SerializeField] public int DynamicBlueCircleCount = 1000;
 	[Range(0, 10000)]
-	[SerializeField] public int DynamicBlueRectCount = 500;
-	[Range(0, 10000)]
-	[SerializeField] public int DynamicYellowCircleCount = 500;
-	[Range(0, 10000)]
-	[SerializeField] public int DynamicYellowRectCount = 500;
+	[SerializeField] public int DynamicYellowCircleCount = 1000;
 
 	private EcsWorld _world;
 	private EcsSystemGroup _engine;

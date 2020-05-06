@@ -19,9 +19,7 @@ namespace Models.Systems
 		
 		private readonly EcsFilter _staticRectFilter;
 		private readonly EcsFilter _staticCircleFilter;
-		private readonly EcsFilter _dynamicBlueRectFilter;
 		private readonly EcsFilter _dynamicBlueCircleFilter;
-		private readonly EcsFilter _dynamicYellowRectFilter;
 		private readonly EcsFilter _dynamicYellowCircleFilter;
 		private readonly EcsFilter _heroFilter;
 
@@ -34,9 +32,7 @@ namespace Models.Systems
 			
 			_staticRectFilter = new EcsFilter().AllOf(ComponentType.StaticRect, ComponentType.Character, ComponentType.BroadphaseRef);
 			_staticCircleFilter = new EcsFilter().AllOf(ComponentType.StaticCircle, ComponentType.Character, ComponentType.BroadphaseRef);
-			_dynamicBlueRectFilter = new EcsFilter().AllOf(ComponentType.BlueRect, ComponentType.Character, ComponentType.BroadphaseRef);
 			_dynamicBlueCircleFilter = new EcsFilter().AllOf(ComponentType.BlueCircle, ComponentType.Character, ComponentType.BroadphaseRef);
-			_dynamicYellowRectFilter = new EcsFilter().AllOf(ComponentType.YellowRect, ComponentType.Character, ComponentType.BroadphaseRef);
 			_dynamicYellowCircleFilter = new EcsFilter().AllOf(ComponentType.YellowCircle, ComponentType.Character, ComponentType.BroadphaseRef);
 		}
 
@@ -44,9 +40,7 @@ namespace Models.Systems
 		{
 			CreateOrDestroyEntities(world, _staticRectFilter, _physicsScene.StaticRectCount, CreateStaticRect);
 			CreateOrDestroyEntities(world, _staticCircleFilter, _physicsScene.StaticCircleCount, CreateStaticCircle);
-			CreateOrDestroyEntities(world, _dynamicBlueRectFilter, _physicsScene.DynamicBlueRectCount, CreateDynamicBlueRect);
 			CreateOrDestroyEntities(world, _dynamicBlueCircleFilter, _physicsScene.DynamicBlueCircleCount, CreateDynamicBlueCircle);
-			CreateOrDestroyEntities(world, _dynamicYellowRectFilter, _physicsScene.DynamicYellowRectCount, CreateDynamicYellowRect);
 			CreateOrDestroyEntities(world, _dynamicYellowCircleFilter, _physicsScene.DynamicYellowCircleCount, CreateDynamicYellowCircle);
 
 			if (world.Filter(_heroFilter).CalculateCount() > 0) 
@@ -102,16 +96,6 @@ namespace Models.Systems
 			Instantiate(_physicsScene.DynamicYellowCircle, circleEntity);
 		}
 
-		private void CreateDynamicYellowRect(EcsWorld world)
-		{
-			CalculateTransform(out Vector2 position, out float rotation);
-
-			Vector2 size = new Vector2(Random.Range(2f, 4f), Random.Range(2f, 4f));
-			EcsEntity rectEntity = CreateRectEntity(world, position, rotation, size, 1, 1, "yellow", 0);
-			rectEntity[ComponentType.YellowRect] = new YellowRectComponent();
-			Instantiate(_physicsScene.DynamicYellowRect, rectEntity);
-		}
-
 		private void CreateDynamicBlueCircle(EcsWorld world)
 		{
 			CalculateTransform(out Vector2 position, out float rotation);
@@ -120,16 +104,6 @@ namespace Models.Systems
 			EcsEntity circleEntity = CreateCircleEntity(world, position, rotation, radius, 1, 1, "blue", 100);
 			circleEntity[ComponentType.BlueCircle] = new BlueCircleComponent();
 			Instantiate(_physicsScene.DynamicBlueCircle, circleEntity);
-		}
-
-		private void CreateDynamicBlueRect(EcsWorld world)
-		{
-			CalculateTransform(out Vector2 position, out float rotation);
-
-			Vector2 size = new Vector2(Random.Range(2f, 4f), Random.Range(2f, 4f));
-			EcsEntity rectEntity = CreateRectEntity(world, position, rotation, size, 1, 1, "blue", 100);
-			rectEntity[ComponentType.BlueRect] = new BlueRectComponent();
-			Instantiate(_physicsScene.DynamicBlueBox, rectEntity);
 		}
 
 		private void CreateStaticRect(EcsWorld world)
@@ -170,8 +144,7 @@ namespace Models.Systems
 			entity[ComponentType.Character] = new CharacterComponent {Ref = character};
 		}
 
-		private EcsEntity CreateCircleEntity(EcsWorld world, Vector2 position, float rotation, float radius, float mass, float inertia,
-			string colliderLayer, float rayLength)
+		private EcsEntity CreateCircleEntity(EcsWorld world, Vector2 position, float rotation, float radius, float mass, float inertia, string colliderLayer, float rayLength)
 		{
 			return CreateEntity(world, position, rotation, new CircleColliderComponent
 			{
