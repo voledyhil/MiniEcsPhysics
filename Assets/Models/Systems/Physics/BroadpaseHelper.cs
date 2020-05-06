@@ -5,7 +5,7 @@ namespace Models.Systems.Physics
 {
     public static class BroadphaseHelper
     {
-        public const float CellSize = 40;
+        public const float ChunkSize = 50;
 
         public static SAPChunk GetOrCreateChunk(int chunkId, BroadphaseSAPComponent bpChunks)
         {
@@ -20,10 +20,10 @@ namespace Models.Systems.Physics
         
         public static IEnumerable<int> GetChunks(AABB aabb)
         {
-            short minX = (short) math.floor(aabb.Min.x / CellSize);
-            short minY = (short) math.floor(aabb.Min.y / CellSize);
-            short maxX = (short) math.floor(aabb.Max.x / CellSize);
-            short maxY = (short) math.floor(aabb.Max.y / CellSize);
+            short minX = (short) math.floor(aabb.Min.x / ChunkSize);
+            short minY = (short) math.floor(aabb.Min.y / ChunkSize);
+            short maxX = (short) math.floor(aabb.Max.x / ChunkSize);
+            short maxY = (short) math.floor(aabb.Max.y / ChunkSize);
 
             for (short k = minX; k <= maxX; k++)
             for (short j = minY; j <= maxY; j++)

@@ -64,7 +64,7 @@ namespace Models.Systems.Physics
                     if (index >= 0)
                     {
                         SAPChunk chunk = chunks[index];
-                        chunks.RemoveAt(index);
+                        chunks[index] = null;
                         newChunks.Add(chunk);
                     }
                     else
@@ -94,6 +94,8 @@ namespace Models.Systems.Physics
 
                 foreach (SAPChunk chunk in chunks)
                 {
+                    if (chunk == null)
+                        continue;
                     BroadphaseHelper.RemoveFormChunk(chunk, entityId);
                 }
 

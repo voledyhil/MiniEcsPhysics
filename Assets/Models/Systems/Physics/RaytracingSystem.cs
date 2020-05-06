@@ -97,7 +97,7 @@ namespace Models.Systems.Physics
 
         private static void RayTrace(RayComponent ray, out int[] chunks, out float2[] points)
         {
-            const float cellSize = BroadphaseHelper.CellSize;
+            const float cellSize = BroadphaseHelper.ChunkSize;
             const float offset = ushort.MaxValue * cellSize;
             
             float2 source = ray.Source + offset;
