@@ -25,7 +25,7 @@ namespace Models.Systems.Physics
                 ComponentType.RigBody, ComponentType.Collider);
         }
 
-        public void Update(float deltaTime, EcsWorld world)
+        public unsafe void Update(float deltaTime, EcsWorld world)
         {
             BroadphaseSAPComponent bpChunks =
                 world.GetOrCreateSingleton<BroadphaseSAPComponent>(ComponentType.BroadphaseSAP); 
@@ -60,7 +60,7 @@ namespace Models.Systems.Physics
                     {
                         BroadphaseAABB item = chunk.Items[j];
 
-                        if (!item.AABB.Overlap(segAABB))
+                        if (!item.AABB->Overlap(segAABB))
                             continue;
 
                         if (!_collisionMatrix.Check(ray.Layer, item.Layer))

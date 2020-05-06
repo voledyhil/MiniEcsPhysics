@@ -4,8 +4,8 @@ namespace Models
 {
     public struct AABB
     {
-        public float2 Min { get; }
-        public float2 Max { get; }
+        public float2 Min;
+        public float2 Max;
 
         public AABB(float2 min, float2 max)
         {
@@ -30,6 +30,11 @@ namespace Models
         public bool Overlap(AABB aabb)
         {
             return !(Max.x < aabb.Min.x) && !(Min.x > aabb.Max.x) && !(Max.y < aabb.Min.y) && !(Min.y > aabb.Max.y);
+        }
+
+        public override string ToString()
+        {
+            return $"({Min}, {Max})";
         }
     }
 }

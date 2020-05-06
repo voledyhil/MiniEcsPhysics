@@ -64,7 +64,7 @@ public class PhysicsScene : MonoBehaviour
 	}
 
 	private void Update()
-	{
+	{		
 		_engine.Update(Time.deltaTime, _world);
 	}
 }

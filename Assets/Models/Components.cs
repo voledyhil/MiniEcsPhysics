@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using MiniEcs.Core;
 using Unity.Mathematics;
 
@@ -129,6 +130,8 @@ namespace Models
         public byte Index => ComponentType.BroadphaseRef;
         public List<SAPChunk> Chunks;
         public int ChunksHash;
+        public AABB AABB;
+        public uint Id;
     }
 
     public class SAPChunk
@@ -150,12 +153,13 @@ namespace Models
         }
     }
     
-    public struct BroadphaseAABB
+    [StructLayout(LayoutKind.Sequential)]
+    public unsafe struct BroadphaseAABB
     {
         public uint Id;
         public int Layer;
         public bool IsStatic;
-        public AABB AABB;
+        public AABB* AABB;
     }
     
     public class BroadphaseSAPComponent : IEcsComponent

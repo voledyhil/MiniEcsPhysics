@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using MiniEcs.Core;
 using MiniEcs.Core.Systems;
@@ -16,7 +17,7 @@ namespace Models.Systems.Physics
                 ComponentType.Collider, ComponentType.RigBody, ComponentType.BroadphaseRef).NoneOf(ComponentType.RigBodyStatic);
         }
 
-        public void Update(float deltaTime, EcsWorld world)
+        public unsafe void Update(float deltaTime, EcsWorld world)
         {
             BroadphaseSAPComponent bpChunks =
                 world.GetOrCreateSingleton<BroadphaseSAPComponent>(ComponentType.BroadphaseSAP); 
@@ -29,22 +30,22 @@ namespace Models.Systems.Physics
                 RotationComponent rot = (RotationComponent) entity[ComponentType.Rotation];
                 ColliderComponent col = (ColliderComponent) entity[ComponentType.Collider];
                 RigBodyComponent rig = (RigBodyComponent) entity[ComponentType.RigBody];
-                BroadphaseRefComponent brRef = (BroadphaseRefComponent) entity[ComponentType.BroadphaseRef];
+                BroadphaseRefComponent bpRef = (BroadphaseRefComponent) entity[ComponentType.BroadphaseRef];
                 
                 AABB aabb = new AABB(col.Size, tr.Value, col.ColliderType == ColliderType.Rect ? rot.Value : 0f);
+                fixed (AABB* pAABB = &bpRef.AABB)
+                {
+                    pAABB->Min = aabb.Min;
+                    pAABB->Max = aabb.Max;
+                }
+
                 bool isStatic = MathHelper.Equal(rig.InvMass, 0);
                 int layer = col.Layer;
-                
-                List<SAPChunk> chunks = brRef.Chunks;
+
+                List<SAPChunk> chunks = bpRef.Chunks;
                 int chunksHash = BroadphaseHelper.CalculateChunksHash(aabb);                
-                if (brRef.ChunksHash == chunksHash)
-                {
-                    foreach (SAPChunk chunk in chunks)
-                    {
-                        BroadphaseHelper.UpdateChunk(chunk, entityId, aabb);
-                    }
+                if (bpRef.ChunksHash == chunksHash)
                     continue;
-                }
                 
                 List<SAPChunk> newChunks = new List<SAPChunk>(4);
                 foreach (int chunkId in BroadphaseHelper.GetChunks(aabb))
@@ -65,14 +66,28 @@ namespace Models.Systems.Physics
                         SAPChunk chunk = chunks[index];
                         chunks[index] = null;
                         newChunks.Add(chunk);
-                        
-                        BroadphaseHelper.UpdateChunk(chunk, entityId, aabb);
                     }
                     else
                     {
                         SAPChunk chunk = BroadphaseHelper.GetOrCreateChunk(chunkId, bpChunks);
-                        BroadphaseHelper.AddToChunk(chunk, entityId, aabb, isStatic, layer);
-                        
+
+                        if (chunk.Length >= chunk.Items.Length)
+                            Array.Resize(ref chunk.Items, 2 * chunk.Length);
+
+                        fixed (AABB* pAABB = &bpRef.AABB)
+                        {
+                            chunk.Items[chunk.Length++] = new BroadphaseAABB
+                            {
+                                AABB = pAABB,
+                                Id = entityId,
+                                IsStatic = isStatic,
+                                Layer = layer
+                            };
+                        }
+
+                        if (!isStatic)
+                            chunk.DynamicCounter++;
+
                         newChunks.Add(chunk);
                     }
                 }
@@ -81,12 +96,11 @@ namespace Models.Systems.Physics
                 {
                     if (chunk == null)
                         continue;
-
                     BroadphaseHelper.RemoveFormChunk(chunk, entityId);
                 }
 
-                brRef.Chunks = newChunks;
-                brRef.ChunksHash = chunksHash;
+                bpRef.Chunks = newChunks;
+                bpRef.ChunksHash = chunksHash;
             }
         }
     }

@@ -7,12 +7,13 @@ using Unity.Mathematics;
 namespace Models.Systems.Physics
 {
     [EcsUpdateInGroup(typeof(PhysicsSystemGroup))]
-    [EcsUpdateAfter(typeof(BroadphaseUpdateSystem))] 
+    [EcsUpdateAfter(typeof(BroadphaseUpdateSystem))]
     [EcsUpdateBefore(typeof(ResolveCollisionsSystem))]
     public class BroadphaseCalculatePairSystem : IEcsSystem
     {
         private readonly CollisionMatrix _collisionMatrix;
         private readonly AABBComparer _comparer = new AABBComparer();
+
         public BroadphaseCalculatePairSystem(CollisionMatrix collisionMatrix)
         {
             _collisionMatrix = collisionMatrix;
@@ -21,7 +22,7 @@ namespace Models.Systems.Physics
         public void Update(float deltaTime, EcsWorld world)
         {
             BroadphaseSAPComponent bpChunks =
-                world.GetOrCreateSingleton<BroadphaseSAPComponent>(ComponentType.BroadphaseSAP); 
+                world.GetOrCreateSingleton<BroadphaseSAPComponent>(ComponentType.BroadphaseSAP);
 
             bpChunks.Pairs.Clear();
             foreach (SAPChunk chunk in bpChunks.Chunks.Values)
@@ -40,7 +41,7 @@ namespace Models.Systems.Physics
             }
         }
 
-        private void CalculatePairs(SAPChunk chunk)
+        private unsafe void CalculatePairs(SAPChunk chunk)
         {
             chunk.PairLength = 0;
 
@@ -55,7 +56,7 @@ namespace Models.Systems.Physics
             for (int i = 0; i < length; i++)
             {
                 BroadphaseAABB a = chunk.Items[i];
-                float2 p = (a.AABB.Min + a.AABB.Max) * 0.5f;
+                float2 p = (a.AABB->Min + a.AABB->Max) * 0.5f;
 
                 s += p;
                 s2 += p * p;
@@ -63,14 +64,13 @@ namespace Models.Systems.Physics
                 for (int j = i + 1; j < length; j++)
                 {
                     BroadphaseAABB b = chunk.Items[j];
-
-                    if (b.AABB.Min[chunk.SortAxis] > a.AABB.Max[chunk.SortAxis])
+                    if (b.AABB->Min[chunk.SortAxis] > a.AABB->Max[chunk.SortAxis])
                         break;
 
                     if (a.IsStatic && b.IsStatic)
                         continue;
 
-                    if (!a.AABB.Overlap(b.AABB))
+                    if (!a.AABB->Overlap(*b.AABB))
                         continue;
 
                     if (!_collisionMatrix.Check(a.Layer, b.Layer))
@@ -88,15 +88,14 @@ namespace Models.Systems.Physics
             chunk.SortAxis = v[1] > v[0] ? 1 : 0;
         }
 
-
-        private class AABBComparer : IComparer<BroadphaseAABB>
+        private unsafe class AABBComparer : IComparer<BroadphaseAABB>
         {
             private int _axis;
 
             public int Compare(BroadphaseAABB a, BroadphaseAABB b)
             {
-                float minA = a.AABB.Min[_axis];
-                float minB = b.AABB.Min[_axis];
+                float minA = a.AABB->Min[_axis];
+                float minB = b.AABB->Min[_axis];
                 return minA < minB ? -1 : minA > minB ? 1 : 0;
             }
 

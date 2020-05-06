@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Unity.Mathematics;
 
@@ -82,33 +81,6 @@ namespace Models.Systems.Physics
             }
         }
         
-        public static void UpdateChunk(SAPChunk chunk, uint entityId, AABB aabb)
-        {
-            for (int i = 0; i < chunk.Length; i++)
-            {
-                if (chunk.Items[i].Id != entityId)
-                    continue;
-                chunk.Items[i].AABB = aabb;
-                break;
-            }
-        }
-        
-        public static void AddToChunk(SAPChunk chunk, uint entityId, AABB aabb, bool isStatic, int layer)
-        {
-            if (chunk.Length >= chunk.Items.Length)
-                Array.Resize(ref chunk.Items, 2 * chunk.Length);
-
-            chunk.Items[chunk.Length++] = new BroadphaseAABB
-            {
-                AABB = aabb,
-                Id = entityId,
-                IsStatic = isStatic,
-                Layer = layer
-            };
-            if (!isStatic)
-                chunk.DynamicCounter++;
-        }
-
         public static int CalculateChunksHash(AABB aabb)
         {
             int hash = 647;

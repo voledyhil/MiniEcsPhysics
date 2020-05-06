@@ -19,7 +19,7 @@ namespace Models.Systems.Physics
                 .NoneOf(ComponentType.BroadphaseRef);
         }
         
-        public void Update(float deltaTime, EcsWorld world)
+        public unsafe void Update(float deltaTime, EcsWorld world)
         {
             BroadphaseSAPComponent bpChunks =
                 world.GetOrCreateSingleton<BroadphaseSAPComponent>(ComponentType.BroadphaseSAP); 
@@ -29,7 +29,7 @@ namespace Models.Systems.Physics
             foreach (EcsEntity entity in entities)
             {
                 uint entityId = entity.Id;
-                
+
                 TranslationComponent tr = (TranslationComponent) entity[ComponentType.Translation];
                 RotationComponent rot = (RotationComponent) entity[ComponentType.Rotation];
                 ColliderComponent col = (ColliderComponent) entity[ComponentType.Collider];
@@ -38,23 +38,40 @@ namespace Models.Systems.Physics
                 AABB aabb = new AABB(col.Size, tr.Value, col.ColliderType == ColliderType.Rect ? rot.Value : 0f);
                 bool isStatic = MathHelper.Equal(rig.InvMass, 0);
                 int layer = col.Layer;
-                
+
                 List<SAPChunk> chunks = new List<SAPChunk>(4);
                 foreach (int chunkId in BroadphaseHelper.GetChunks(aabb))
                 {
-                    SAPChunk chunk = BroadphaseHelper.GetOrCreateChunk(chunkId, bpChunks);
-
-                    BroadphaseHelper.AddToChunk(chunk, entityId, aabb, isStatic, layer);
-
-                    chunks.Add(chunk);
+                    chunks.Add(BroadphaseHelper.GetOrCreateChunk(chunkId, bpChunks));
                 }
-
+                
                 BroadphaseRefComponent bpRef = new BroadphaseRefComponent
                 {
                     Chunks = chunks,
-                    ChunksHash = BroadphaseHelper.CalculateChunksHash(aabb)
+                    ChunksHash = BroadphaseHelper.CalculateChunksHash(aabb),
+                    AABB = aabb
                 };
                 entity[ComponentType.BroadphaseRef] = bpRef;
+
+                foreach (SAPChunk chunk in chunks)
+                {
+                    if (chunk.Length >= chunk.Items.Length)
+                        Array.Resize(ref chunk.Items, 2 * chunk.Length);
+                    
+                    fixed (AABB* pAABB = &bpRef.AABB)
+                    {
+                        chunk.Items[chunk.Length++] = new BroadphaseAABB
+                        {
+                            AABB = pAABB,
+                            Id = entityId,
+                            IsStatic = isStatic,
+                            Layer = layer
+                        };
+                    }
+
+                    if (!isStatic)
+                        chunk.DynamicCounter++;
+                }
             }
         }
     }
