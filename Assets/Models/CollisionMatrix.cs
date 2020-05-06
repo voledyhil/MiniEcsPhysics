@@ -4,7 +4,6 @@ namespace Models
 {
     public class CollisionMatrix
     {
-        public IDictionary<int, int> Data => _data;
         private readonly Dictionary<int, int> _data = new Dictionary<int, int>();
         private readonly Dictionary<string, int> _layers = new Dictionary<string, int>();
         

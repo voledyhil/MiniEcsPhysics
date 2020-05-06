@@ -5,7 +5,7 @@ namespace Models.Systems.Physics
 {
     public static class BroadphaseHelper
     {
-        public const float CellSize = 35;
+        public const float CellSize = 40;
 
         public static SAPChunk GetOrCreateChunk(int chunkId, BroadphaseSAPComponent bpChunks)
         {
@@ -68,8 +68,7 @@ namespace Models.Systems.Physics
         {
             for (int i = 0; i < chunk.Length; i++)
             {
-                BroadphaseAABB item = chunk.Items[i];
-                if (item.Id != entityId)
+                if (chunk.Items[i].Id != entityId)
                     continue;
 
                 chunk.NeedRebuild = true;

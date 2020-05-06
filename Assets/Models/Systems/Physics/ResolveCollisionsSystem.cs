@@ -31,11 +31,8 @@ namespace Models.Systems.Physics
 
 			foreach (long pair in bpChunks.Pairs)
 			{
-				uint i = (uint) (pair & uint.MaxValue);
-				uint j = (uint) (pair >> 32);
-
-				EcsEntity entityA = entities[i];
-				EcsEntity entityB = entities[j];
+				EcsEntity entityA = entities[(uint) (pair & uint.MaxValue)];
+				EcsEntity entityB = entities[(uint) (pair >> 32)];
 
 				TranslationComponent trA = (TranslationComponent) entityA[ComponentType.Translation];
 				RotationComponent rotA = (RotationComponent) entityA[ComponentType.Rotation];
@@ -79,7 +76,7 @@ namespace Models.Systems.Physics
 					rigB.AngularVelocity += rigB.InvInertia * MathHelper.Cross(rb, impulse);
 				}
 
-				float2 correction = info.Penetration / (rigA.InvMass + rigB.InvMass) * info.Normal * 0.4f;
+				float2 correction = info.Penetration / (rigA.InvMass + rigB.InvMass) * info.Normal * 0.5f;
 				trA.Value -= correction * rigA.InvMass;
 				trB.Value += correction * rigB.InvMass;
 			}

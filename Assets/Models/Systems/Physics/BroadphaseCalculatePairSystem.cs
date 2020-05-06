@@ -70,8 +70,7 @@ namespace Models.Systems.Physics
                     if (!a.AABB.Overlap(b.AABB))
                         continue;
 
-                    if ((_collisionMatrix.Data[a.Layer] & b.Layer) != b.Layer &&
-                        (_collisionMatrix.Data[b.Layer] & a.Layer) != a.Layer)
+                    if (!_collisionMatrix.Check(a.Layer, b.Layer))
                         continue;
 
                     if (chunk.PairLength >= chunk.Pairs.Length)

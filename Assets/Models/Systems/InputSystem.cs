@@ -40,7 +40,7 @@ namespace Models.Systems
                 
                 float rad = rotation.Value;
                 float2 dir = new float2(-math.sin(rad), math.cos(rad));
-                rigBody.Velocity = 1000 * deltaTime * dir;
+                rigBody.Velocity = 25 * dir;
             }
             
         }

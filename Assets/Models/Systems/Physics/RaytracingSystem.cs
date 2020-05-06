@@ -63,8 +63,7 @@ namespace Models.Systems.Physics
                         if (!item.AABB.Overlap(segAABB))
                             continue;
 
-                        if ((_collisionMatrix.Data[ray.Layer] & item.Layer) != item.Layer &&
-                            (_collisionMatrix.Data[item.Layer] & ray.Layer) != ray.Layer)
+                        if (!_collisionMatrix.Check(ray.Layer, item.Layer))
                             continue;
 
                         EcsEntity targetEntity = targetEntities[item.Id];
