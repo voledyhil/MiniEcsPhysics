@@ -80,7 +80,8 @@ namespace Models.Systems.Physics
                                 AABB = pAABB,
                                 Id = entityId,
                                 IsStatic = isStatic,
-                                Layer = layer
+                                Layer = layer,
+                                Entity = entity
                             };
                         }
 

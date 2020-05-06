@@ -28,10 +28,10 @@ namespace Models.Systems.Physics
 
 			IEcsGroup entities = world.Filter(_entitiesFilter);
 
-			foreach (long pair in bpChunks.Pairs)
+			foreach (BroadphasePair pair in bpChunks.Pairs)
 			{
-				EcsEntity entityA = entities[(uint) (pair & uint.MaxValue)];
-				EcsEntity entityB = entities[(uint) (pair >> 32)];
+				EcsEntity entityA = pair.EntityA;
+				EcsEntity entityB = pair.EntityB;
 
 				TransformComponent trA = (TransformComponent) entityA[ComponentType.Transform];
 				RigBodyComponent rigA = (RigBodyComponent) entityA[ComponentType.RigBody];

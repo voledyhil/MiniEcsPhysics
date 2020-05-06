@@ -79,7 +79,7 @@ namespace Models.Systems.Physics
                     if (chunk.PairLength >= chunk.Pairs.Length)
                         Array.Resize(ref chunk.Pairs, 2 * chunk.PairLength);
 
-                    chunk.Pairs[chunk.PairLength++] = ((long) b.Id << 32) | a.Id;
+                    chunk.Pairs[chunk.PairLength++] = new BroadphasePair(a.Entity, b.Entity);
                 }
             }
 

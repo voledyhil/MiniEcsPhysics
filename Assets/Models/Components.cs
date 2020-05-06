@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using MiniEcs.Core;
@@ -113,10 +114,38 @@ namespace Models
         public override ColliderType ColliderType => ColliderType.Circle;
     }
     
-    
     public class RigBodyStaticComponent : IEcsComponent
     {
         public byte Index => ComponentType.RigBodyStatic;
+    }
+    
+    public struct BroadphasePair : IEquatable<BroadphasePair>
+    {
+        public EcsEntity EntityA { get; }
+        public EcsEntity EntityB { get; }
+
+        public BroadphasePair(EcsEntity entityA, EcsEntity entityB)
+        {
+            EntityA = entityA;
+            EntityB = entityB;
+        }
+
+        public bool Equals(BroadphasePair other)
+        {
+            return EntityA == other.EntityA && EntityB == other.EntityB ||
+                   EntityB == other.EntityA && EntityA == other.EntityB;
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hash = (int)EntityA.Id;
+                hash = (hash * 397) ^ (int)EntityB.Id;
+                return hash;
+            }
+        }
+        
     }
     
     public class BroadphaseRefComponent : IEcsComponent
@@ -134,7 +163,7 @@ namespace Models
         public bool NeedRebuild;
         
         public BroadphaseAABB[] Items = new BroadphaseAABB[32];
-        public long[] Pairs = new long[32];
+        public BroadphasePair[] Pairs = new BroadphasePair[32];
         public int PairLength;
         public int SortAxis;
         public int DynamicCounter;
@@ -149,6 +178,7 @@ namespace Models
     [StructLayout(LayoutKind.Sequential)]
     public unsafe struct BroadphaseAABB
     {
+        public EcsEntity Entity;
         public uint Id;
         public int Layer;
         public bool IsStatic;
@@ -159,7 +189,7 @@ namespace Models
     {
         public byte Index => ComponentType.BroadphaseSAP;
         public readonly Dictionary<int, SAPChunk> Chunks = new Dictionary<int, SAPChunk>();
-        public readonly HashSet<long> Pairs = new HashSet<long>();
+        public readonly HashSet<BroadphasePair> Pairs = new HashSet<BroadphasePair>();
     }
 
     public class RayComponent : IEcsComponent

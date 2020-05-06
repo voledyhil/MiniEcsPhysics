@@ -77,6 +77,7 @@ namespace Models.Systems.Physics
                 
                 chunk.NeedRebuild = true;
                 chunk.Items[i].Id = uint.MaxValue;
+                chunk.Items[i].Entity = null;
                 break;
             }
         }
