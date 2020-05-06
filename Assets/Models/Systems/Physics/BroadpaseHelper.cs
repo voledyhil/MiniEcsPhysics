@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Unity.Mathematics;
 
@@ -63,25 +64,22 @@ namespace Models.Systems.Physics
             
             chunk.Length = freeIndex;
         }
-        
+
         public static void RemoveFormChunk(SAPChunk chunk, uint entityId)
         {
-            for (int i = 0; i < chunk.Length; i++)
-            {
-                BroadphaseAABB item = chunk.Items[i];
-                if (item.Id != entityId)
-                    continue;
-
-                if (!item.IsStatic)
-                    chunk.DynamicCounter--;
-                
-                chunk.NeedRebuild = true;
-                chunk.Items[i].Id = uint.MaxValue;
-                chunk.Items[i].Entity = null;
-                break;
-            }
+            int index = Array.FindIndex(chunk.Items, 0, chunk.Length, bp => bp.Id == entityId);
+            BroadphaseAABB item = chunk.Items[index];
+            
+            if (!item.IsStatic)
+                chunk.DynamicCounter--;
+            
+            item.Id = uint.MaxValue;
+            item.Entity = null;
+            
+            chunk.Items[index] = item;
+            chunk.NeedRebuild = true;
         }
-        
+
         public static int CalculateChunksHash(AABB aabb)
         {
             int hash = 647;
