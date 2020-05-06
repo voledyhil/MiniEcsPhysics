@@ -131,7 +131,6 @@ namespace Models
         public List<SAPChunk> Chunks;
         public int ChunksHash;
         public AABB AABB;
-        public uint Id;
     }
 
     public class SAPChunk

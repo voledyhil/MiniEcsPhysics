@@ -39,14 +39,14 @@ namespace Models.Systems.Physics
                     pAABB->Max = aabb.Max;
                 }
 
-                bool isStatic = MathHelper.Equal(rig.InvMass, 0);
-                int layer = col.Layer;
-
-                List<SAPChunk> chunks = bpRef.Chunks;
                 int chunksHash = BroadphaseHelper.CalculateChunksHash(aabb);                
                 if (bpRef.ChunksHash == chunksHash)
                     continue;
                 
+                bool isStatic = MathHelper.Equal(rig.InvMass, 0);
+                int layer = col.Layer;
+                
+                List<SAPChunk> chunks = bpRef.Chunks;
                 List<SAPChunk> newChunks = new List<SAPChunk>(4);
                 foreach (int chunkId in BroadphaseHelper.GetChunks(aabb))
                 {
@@ -64,7 +64,7 @@ namespace Models.Systems.Physics
                     if (index >= 0)
                     {
                         SAPChunk chunk = chunks[index];
-                        chunks[index] = null;
+                        chunks.RemoveAt(index);
                         newChunks.Add(chunk);
                     }
                     else
@@ -94,8 +94,6 @@ namespace Models.Systems.Physics
 
                 foreach (SAPChunk chunk in chunks)
                 {
-                    if (chunk == null)
-                        continue;
                     BroadphaseHelper.RemoveFormChunk(chunk, entityId);
                 }
 
