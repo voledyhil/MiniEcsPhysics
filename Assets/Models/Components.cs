@@ -7,38 +7,32 @@ namespace Models
 {
     public static class ComponentType
     {
-        public const byte Translation = 0;
-        public const byte Rotation = 1;
-        public const byte RigBody = 2;
-        public const byte Collider = 3;
-        public const byte RigBodyStatic = 4;
-        public const byte BroadphaseRef = 5;
-        public const byte BroadphaseSAP = 6;
-        public const byte Ray = 7;
+        public const byte Transform = 0;
+        public const byte RigBody = 1;
+        public const byte Collider = 2;
+        public const byte RigBodyStatic = 3;
+        public const byte BroadphaseRef = 4;
+        public const byte BroadphaseSAP = 5;
+        public const byte Ray = 6;
 
-        public const byte Hero = 8;
-        public const byte Character = 9;
+        public const byte Hero = 7;
+        public const byte Character = 8;
         
-        public const byte StaticRect = 10;
-        public const byte StaticCircle = 11;
-        public const byte BlueRect = 12;
-        public const byte BlueCircle = 13;
-        public const byte YellowRect = 14;
-        public const byte YellowCircle = 15;
+        public const byte StaticRect = 9;
+        public const byte StaticCircle = 10;
+        public const byte BlueRect = 11;
+        public const byte BlueCircle = 12;
+        public const byte YellowRect = 13;
+        public const byte YellowCircle = 14;
         
-        public const byte TotalComponents = 16;
+        public const byte TotalComponents = 15;
     }
 
-    public class TranslationComponent : IEcsComponent
+    public class TransformComponent : IEcsComponent
     {
-        public byte Index => ComponentType.Translation;
-        public float2 Value = float2.zero;
-    }
-    
-    public class RotationComponent : IEcsComponent
-    {
-        public byte Index => ComponentType.Rotation;
-        public float Value = 0;
+        public byte Index => ComponentType.Transform;
+        public float2 Position = float2.zero;
+        public float Rotation = 0;
     }
     
     public class RigBodyComponent : IEcsComponent

@@ -13,8 +13,8 @@ namespace Models.Systems.Physics
         private readonly EcsFilter _entitiesFilter;
         public BroadphaseUpdateSystem()
         {
-            _entitiesFilter = new EcsFilter().AllOf(ComponentType.Translation, ComponentType.Rotation,
-                ComponentType.Collider, ComponentType.RigBody, ComponentType.BroadphaseRef).NoneOf(ComponentType.RigBodyStatic);
+            _entitiesFilter = new EcsFilter().AllOf(ComponentType.Transform, ComponentType.Collider, ComponentType.RigBody,
+                ComponentType.BroadphaseRef).NoneOf(ComponentType.RigBodyStatic);
         }
 
         public unsafe void Update(float deltaTime, EcsWorld world)
@@ -26,13 +26,12 @@ namespace Models.Systems.Physics
             {
                 uint entityId = entity.Id;
 
-                TranslationComponent tr = (TranslationComponent) entity[ComponentType.Translation];
-                RotationComponent rot = (RotationComponent) entity[ComponentType.Rotation];
+                TransformComponent tr = (TransformComponent) entity[ComponentType.Transform];
                 ColliderComponent col = (ColliderComponent) entity[ComponentType.Collider];
                 RigBodyComponent rig = (RigBodyComponent) entity[ComponentType.RigBody];
                 BroadphaseRefComponent bpRef = (BroadphaseRefComponent) entity[ComponentType.BroadphaseRef];
                 
-                AABB aabb = new AABB(col.Size, tr.Value, col.ColliderType == ColliderType.Rect ? rot.Value : 0f);
+                AABB aabb = new AABB(col.Size, tr.Position, col.ColliderType == ColliderType.Rect ? tr.Rotation : 0f);
                 fixed (AABB* pAABB = &bpRef.AABB)
                 {
                     pAABB->Min = aabb.Min;

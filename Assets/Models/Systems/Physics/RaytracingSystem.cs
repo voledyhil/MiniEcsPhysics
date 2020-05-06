@@ -20,9 +20,8 @@ namespace Models.Systems.Physics
         public RaytracingSystem(CollisionMatrix collisionMatrix)
         {
             _collisionMatrix = collisionMatrix;
-            _rayFilter = new EcsFilter().AllOf(ComponentType.Ray, ComponentType.Translation, ComponentType.Rotation);
-            _targetsFilter = new EcsFilter().AllOf(ComponentType.Translation, ComponentType.Rotation,
-                ComponentType.RigBody, ComponentType.Collider);
+            _rayFilter = new EcsFilter().AllOf(ComponentType.Ray, ComponentType.Transform);
+            _targetsFilter = new EcsFilter().AllOf(ComponentType.Transform, ComponentType.RigBody, ComponentType.Collider);
         }
 
         public unsafe void Update(float deltaTime, EcsWorld world)
@@ -34,13 +33,12 @@ namespace Models.Systems.Physics
             
             foreach (EcsEntity entity in world.Filter(_rayFilter))
             {
-                TranslationComponent tr = (TranslationComponent) entity[ComponentType.Translation];
-                RotationComponent rot = (RotationComponent) entity[ComponentType.Rotation];
+                TransformComponent tr = (TransformComponent) entity[ComponentType.Transform];
                 RayComponent ray = (RayComponent) entity[ComponentType.Ray];
                 
                 ray.Hit = false;
-                ray.Source = tr.Value;
-                ray.Rotation = rot.Value;
+                ray.Source = tr.Position;
+                ray.Rotation = tr.Rotation;
 
                 float minDist = float.MaxValue;
 
@@ -70,12 +68,11 @@ namespace Models.Systems.Physics
                         if (entity == targetEntity)
                             continue;
 
-                        tr = (TranslationComponent) targetEntity[ComponentType.Translation];
-                        rot = (RotationComponent) targetEntity[ComponentType.Rotation];
+                        tr = (TransformComponent) targetEntity[ComponentType.Transform];
                         ColliderComponent col = (ColliderComponent) targetEntity[ComponentType.Collider];
 
                         int colliderType = (int) col.ColliderType;
-                        if (!Intersections[colliderType].HandleIntersection(ray, col, tr, rot, out float2 point))
+                        if (!Intersections[colliderType].HandleIntersection(ray, col, tr, out float2 point))
                             continue;
 
                         float dist = math.distancesq(p1, point);

@@ -5,15 +5,15 @@ namespace Models
 {
     public class CollisionCircleCircle : ICollisionCallback
     {
-        public void HandleCollision(ColliderComponent aCollider, TranslationComponent aTranslation, RotationComponent aRotation, ColliderComponent bCollider,
-            TranslationComponent bTranslation, RotationComponent bRotation, out ContactInfo contactInfo)
+        public void HandleCollision(ColliderComponent aCollider, TransformComponent aTransform, ColliderComponent bCollider,
+            TransformComponent bTransform, out ContactInfo contactInfo)
         {
             contactInfo = new ContactInfo();
             CircleColliderComponent a = (CircleColliderComponent) aCollider;
             CircleColliderComponent b = (CircleColliderComponent) bCollider;
 
             // Calculate translational vector, which is normal
-            float2 normal = bTranslation.Value - aTranslation.Value;
+            float2 normal = bTransform.Position - aTransform.Position;
 
             float distSqr = math.lengthsq(normal);
             float radius = a.Radius + b.Radius;
@@ -31,13 +31,13 @@ namespace Models
             {
                 contactInfo.Penetration = a.Radius;
                 contactInfo.Normal = new float2(1.0f, 0.0f);
-                contactInfo.Contacts[0] = aTranslation.Value;
+                contactInfo.Contacts[0] = aTransform.Position;
             }
             else
             {
                 contactInfo.Penetration = radius - distance;
                 contactInfo.Normal = normal / distance;
-                contactInfo.Contacts[0] = contactInfo.Normal * a.Radius + aTranslation.Value;
+                contactInfo.Contacts[0] = contactInfo.Normal * a.Radius + aTransform.Position;
             }
         }
     }

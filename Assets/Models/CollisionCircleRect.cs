@@ -4,8 +4,8 @@ namespace Models
 {
 	public class CollisionCircleRect : ICollisionCallback
 	{
-		public virtual void HandleCollision(ColliderComponent aCollider, TranslationComponent aTranslation, RotationComponent aRotation, ColliderComponent bCollider,
-			TranslationComponent bTranslation, RotationComponent bRotation, out ContactInfo contactInfo)
+		public virtual void HandleCollision(ColliderComponent aCollider, TransformComponent aTransform, ColliderComponent bCollider,
+			TransformComponent bTransform, out ContactInfo contactInfo)
 		{
 			contactInfo = new ContactInfo();
 			
@@ -14,9 +14,9 @@ namespace Models
 
 			contactInfo.ContactCount = 0;
 
-			float2x2 rotate = float2x2.Rotate(bRotation.Value);
+			float2x2 rotate = float2x2.Rotate(bTransform.Rotation);
 			// Transform circle center to Polygon model space
-			float2 center = MathHelper.Mul(MathHelper.Transpose(rotate), aTranslation.Value - bTranslation.Value);
+			float2 center = MathHelper.Mul(MathHelper.Transpose(rotate), aTransform.Position - bTransform.Position);
 
 			// Find edge with minimum penetration
 			// Exact concept as using support points in Polygon vs Polygon
@@ -48,7 +48,7 @@ namespace Models
 			{
 				contactInfo.ContactCount = 1;
 				contactInfo.Normal = -(MathHelper.Mul(rotate, b.Normals[faceNormal]));
-				contactInfo.Contacts[0] = contactInfo.Normal * a.Radius + aTranslation.Value;
+				contactInfo.Contacts[0] = contactInfo.Normal * a.Radius + aTransform.Position;
 				contactInfo.Penetration = a.Radius;
 
 				return;
@@ -68,7 +68,7 @@ namespace Models
 				float2 n = v1 - center;
 				n = math.normalizesafe(MathHelper.Mul(rotate, n));
 				contactInfo.Normal = n;
-				v1 = MathHelper.Mul(rotate, v1) + bTranslation.Value;
+				v1 = MathHelper.Mul(rotate, v1) + bTransform.Position;
 				contactInfo.Contacts[0] = v1;
 			}
 
@@ -79,7 +79,7 @@ namespace Models
 
 				contactInfo.ContactCount = 1;
 				float2 n = v2 - center;
-				v2 = MathHelper.Mul(rotate, v2) + bTranslation.Value;
+				v2 = MathHelper.Mul(rotate, v2) + bTransform.Position;
 				contactInfo.Contacts[0] = v2;
 				n = math.normalizesafe(MathHelper.Mul(rotate, n));
 				contactInfo.Normal = n;
@@ -93,7 +93,7 @@ namespace Models
 
 				n = MathHelper.Mul(rotate, n);
 				contactInfo.Normal = -n;
-				contactInfo.Contacts[0] = contactInfo.Normal * a.Radius + aTranslation.Value;
+				contactInfo.Contacts[0] = contactInfo.Normal * a.Radius + aTransform.Position;
 				contactInfo.ContactCount = 1;
 			}
 		}

@@ -2,6 +2,6 @@ namespace Models
 {
     public interface ICollisionCallback
     {
-        void HandleCollision(ColliderComponent aCollider, TranslationComponent aTranslation, RotationComponent aRotation, ColliderComponent bCollider, TranslationComponent bTranslation, RotationComponent bRotation, out ContactInfo contactInfo);
+        void HandleCollision(ColliderComponent aCollider, TransformComponent aTransform, ColliderComponent bCollider, TransformComponent bTransform, out ContactInfo contactInfo);
     }
 }

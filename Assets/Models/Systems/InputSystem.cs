@@ -13,24 +13,24 @@ namespace Models.Systems
 
         public InputSystem()
         {
-            _heroFilter = new EcsFilter().AllOf(ComponentType.Rotation, ComponentType.RigBody, ComponentType.Hero);
+            _heroFilter = new EcsFilter().AllOf(ComponentType.Transform, ComponentType.RigBody, ComponentType.Hero);
         }
         
         public void Update(float deltaTime, EcsWorld world)
         {
             foreach (EcsEntity entity in world.Filter(_heroFilter))
             {
-                RotationComponent rotation = (RotationComponent)entity[ComponentType.Rotation];
+                TransformComponent rotation = (TransformComponent)entity[ComponentType.Transform];
                 RigBodyComponent rigBody = (RigBodyComponent)entity[ComponentType.RigBody];
 		
                 if (Input.GetKey(KeyCode.A))
                 {
-                    rotation.Value += 2 * deltaTime;
+                    rotation.Rotation += 2 * deltaTime;
                 }
 
                 if (Input.GetKey(KeyCode.D))
                 {
-                    rotation.Value -= 2 * deltaTime;
+                    rotation.Rotation -= 2 * deltaTime;
                 }
 
                 rigBody.Velocity = float2.zero;
@@ -38,7 +38,7 @@ namespace Models.Systems
                 if (!Input.GetKey(KeyCode.W)) 
                     continue;
                 
-                float rad = rotation.Value;
+                float rad = rotation.Rotation;
                 float2 dir = new float2(-math.sin(rad), math.cos(rad));
                 rigBody.Velocity = 25 * dir;
             }

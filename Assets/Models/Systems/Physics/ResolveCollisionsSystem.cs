@@ -18,8 +18,7 @@ namespace Models.Systems.Physics
 
 		public ResolveCollisionsSystem()
 		{
-			_entitiesFilter = new EcsFilter().AllOf(ComponentType.Translation, ComponentType.Rotation,
-				ComponentType.RigBody, ComponentType.Collider);
+			_entitiesFilter = new EcsFilter().AllOf(ComponentType.Transform, ComponentType.RigBody, ComponentType.Collider);
 		}
 
 		public void Update(float deltaTime, EcsWorld world)
@@ -34,28 +33,26 @@ namespace Models.Systems.Physics
 				EcsEntity entityA = entities[(uint) (pair & uint.MaxValue)];
 				EcsEntity entityB = entities[(uint) (pair >> 32)];
 
-				TranslationComponent trA = (TranslationComponent) entityA[ComponentType.Translation];
-				RotationComponent rotA = (RotationComponent) entityA[ComponentType.Rotation];
+				TransformComponent trA = (TransformComponent) entityA[ComponentType.Transform];
 				RigBodyComponent rigA = (RigBodyComponent) entityA[ComponentType.RigBody];
 				ColliderComponent colA = (ColliderComponent) entityA[ComponentType.Collider];
 
-				TranslationComponent trB = (TranslationComponent) entityB[ComponentType.Translation];
-				RotationComponent rotB = (RotationComponent) entityB[ComponentType.Rotation];
+				TransformComponent trB = (TransformComponent) entityB[ComponentType.Transform];
 				RigBodyComponent rigB = (RigBodyComponent) entityB[ComponentType.RigBody];
 				ColliderComponent colB = (ColliderComponent) entityB[ComponentType.Collider];
 
 				int ia = (int) colA.ColliderType;
 				int ib = (int) colB.ColliderType;
 
-				Collisions[ia, ib].HandleCollision(colA, trA, rotA, colB, trB, rotB, out ContactInfo info);
+				Collisions[ia, ib].HandleCollision(colA, trA, colB, trB, out ContactInfo info);
 
 				if (info.ContactCount <= 0)
 					continue;
 
 				for (int k = 0; k < info.ContactCount; ++k)
 				{
-					float2 ra = info.Contacts[k] - trA.Value;
-					float2 rb = info.Contacts[k] - trB.Value;
+					float2 ra = info.Contacts[k] - trA.Position;
+					float2 rb = info.Contacts[k] - trB.Position;
 					float2 rv = rigB.Velocity + MathHelper.Cross(rigB.AngularVelocity, rb) - 
 					            rigA.Velocity - MathHelper.Cross(rigA.AngularVelocity, ra);
 
@@ -77,8 +74,8 @@ namespace Models.Systems.Physics
 				}
 
 				float2 correction = info.Penetration / (rigA.InvMass + rigB.InvMass) * info.Normal * 0.5f;
-				trA.Value -= correction * rigA.InvMass;
-				trB.Value += correction * rigB.InvMass;
+				trA.Position -= correction * rigA.InvMass;
+				trB.Position += correction * rigB.InvMass;
 			}
 
 		}

@@ -16,7 +16,7 @@ namespace Models.Systems
         public PresenterSystem()
         {
             _transformsFilter = new EcsFilter()
-                .AllOf(ComponentType.Translation, ComponentType.Rotation, ComponentType.Character).NoneOf(ComponentType.RigBodyStatic);
+                .AllOf(ComponentType.Transform, ComponentType.Character).NoneOf(ComponentType.RigBodyStatic);
             _heroFilter = new EcsFilter().AllOf(ComponentType.Hero, ComponentType.Character);
             _rayFilter = new EcsFilter().AllOf(ComponentType.Character, ComponentType.Ray);
         }
@@ -25,12 +25,11 @@ namespace Models.Systems
         {
             foreach (EcsEntity entity in world.Filter(_transformsFilter))
             {
-                TranslationComponent translation = (TranslationComponent) entity[ComponentType.Translation];
-                RotationComponent rotation = (RotationComponent) entity[ComponentType.Rotation];
+                TransformComponent transform = (TransformComponent) entity[ComponentType.Transform];
                 CharacterComponent character = (CharacterComponent) entity[ComponentType.Character];
 			
-                character.Ref.Transform.position = new Vector3(translation.Value.x, 0, translation.Value.y);
-                character.Ref.Transform.rotation = Quaternion.Euler(0, -Mathf.Rad2Deg * rotation.Value, 0);
+                character.Ref.Transform.position = new Vector3(transform.Position.x, 0, transform.Position.y);
+                character.Ref.Transform.rotation = Quaternion.Euler(0, -Mathf.Rad2Deg * transform.Rotation, 0);
             }
 
             foreach (EcsEntity entity in world.Filter(_rayFilter))

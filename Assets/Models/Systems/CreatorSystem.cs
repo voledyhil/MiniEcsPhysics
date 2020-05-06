@@ -154,12 +154,11 @@ namespace Models.Systems
 
 		private static void Instantiate(GameObject prefab, EcsEntity entity)
 		{
-			TranslationComponent tr = (TranslationComponent) entity[ComponentType.Translation];
-			RotationComponent rot = (RotationComponent) entity[ComponentType.Rotation];
+			TransformComponent tr = (TransformComponent) entity[ComponentType.Transform];
 			ColliderComponent col = (ColliderComponent) entity[ComponentType.Collider];
 
-			Vector3 pos = new Vector3(tr.Value.x, 0, tr.Value.y);
-			Quaternion rotation = Quaternion.Euler(0, -Mathf.Rad2Deg * rot.Value, 0);
+			Vector3 pos = new Vector3(tr.Position.x, 0, tr.Position.y);
+			Quaternion rotation = Quaternion.Euler(0, -Mathf.Rad2Deg * tr.Rotation, 0);
 			GameObject go = Object.Instantiate(prefab, pos, Quaternion.identity);
 			go.transform.position = pos;
 			go.transform.rotation = rotation;
@@ -204,8 +203,7 @@ namespace Models.Systems
 					Mass = mass,
 					Inertia = inertia,
 				},
-				new RotationComponent {Value = rotation},
-				new TranslationComponent {Value = position}
+				new TransformComponent {Position = position, Rotation = rotation}
 			);
 
 			if (mass <= 0)

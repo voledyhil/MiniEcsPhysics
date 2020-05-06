@@ -4,9 +4,8 @@ namespace Models
 {
 	public class CollisionRectRect : ICollisionCallback
 	{
-		public void HandleCollision(ColliderComponent aCollider, TranslationComponent aTranslation, RotationComponent aRotation,
-			ColliderComponent bCollider,
-			TranslationComponent bTranslation, RotationComponent bRotation, out ContactInfo contactInfo)
+		public void HandleCollision(ColliderComponent aCollider, TransformComponent aTransform,
+			ColliderComponent bCollider, TransformComponent bTransform, out ContactInfo contactInfo)
 		{
 			contactInfo = new ContactInfo();
 
@@ -14,18 +13,18 @@ namespace Models
 			RectColliderComponent b = (RectColliderComponent) bCollider;
 			contactInfo.ContactCount = 0;
 
-			float2x2 aRotate = float2x2.Rotate(aRotation.Value);
-			float2x2 bRotate = float2x2.Rotate(bRotation.Value);
+			float2x2 aRotate = float2x2.Rotate(aTransform.Rotation);
+			float2x2 bRotate = float2x2.Rotate(bTransform.Rotation);
 
-			float penetrationA = FindAxisLeastPenetration(a, aRotate, aTranslation.Value, b, bRotate,
-				bTranslation.Value, out int faceA);
+			float penetrationA = FindAxisLeastPenetration(a, aRotate, aTransform.Position, b, bRotate,
+				bTransform.Position, out int faceA);
 			if (penetrationA >= 0.0f)
 			{
 				return;
 			}
 
-			float penetrationB = FindAxisLeastPenetration(b, bRotate, bTranslation.Value, a, aRotate,
-				aTranslation.Value, out int faceB);
+			float penetrationB = FindAxisLeastPenetration(b, bRotate, bTransform.Position, a, aRotate,
+				aTransform.Position, out int faceB);
 			if (penetrationB >= 0.0f)
 			{
 				return;
@@ -46,11 +45,11 @@ namespace Models
 			{
 				refPoly = a;
 				refRotate = aRotate;
-				refPosition = aTranslation.Value;
+				refPosition = aTransform.Position;
 
 				incPoly = b;
 				incRotate = bRotate;
-				incPosition = bTranslation.Value;
+				incPosition = bTransform.Position;
 
 				referenceIndex = faceA;
 				flip = false;
@@ -59,11 +58,11 @@ namespace Models
 			{
 				refPoly = b;
 				refRotate = bRotate;
-				refPosition = bTranslation.Value;
+				refPosition = bTransform.Position;
 
 				incPoly = a;
 				incRotate = aRotate;
-				incPosition = aTranslation.Value;
+				incPosition = aTransform.Position;
 
 				referenceIndex = faceB;
 				flip = true;

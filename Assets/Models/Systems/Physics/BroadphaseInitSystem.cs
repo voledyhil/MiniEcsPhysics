@@ -15,7 +15,7 @@ namespace Models.Systems.Physics
         public BroadphaseInitSystem()
         {
             _entitiesFilter = new EcsFilter()
-                .AllOf(ComponentType.Translation, ComponentType.Rotation, ComponentType.Collider, ComponentType.RigBody)
+                .AllOf(ComponentType.Transform, ComponentType.Collider, ComponentType.RigBody)
                 .NoneOf(ComponentType.BroadphaseRef);
         }
         
@@ -30,12 +30,11 @@ namespace Models.Systems.Physics
             {
                 uint entityId = entity.Id;
 
-                TranslationComponent tr = (TranslationComponent) entity[ComponentType.Translation];
-                RotationComponent rot = (RotationComponent) entity[ComponentType.Rotation];
+                TransformComponent tr = (TransformComponent) entity[ComponentType.Transform];
                 ColliderComponent col = (ColliderComponent) entity[ComponentType.Collider];
                 RigBodyComponent rig = (RigBodyComponent) entity[ComponentType.RigBody];
 
-                AABB aabb = new AABB(col.Size, tr.Value, col.ColliderType == ColliderType.Rect ? rot.Value : 0f);
+                AABB aabb = new AABB(col.Size, tr.Position, col.ColliderType == ColliderType.Rect ? tr.Rotation : 0f);
                 bool isStatic = MathHelper.Equal(rig.InvMass, 0);
                 int layer = col.Layer;
 

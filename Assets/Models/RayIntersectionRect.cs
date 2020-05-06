@@ -4,17 +4,17 @@ namespace Models
 {
     public class RayIntersectionRect : IRayIntersectionCallback
     {
-        public bool HandleIntersection(RayComponent ray, ColliderComponent collider, TranslationComponent translation, RotationComponent rotation, out float2 hitPoint)
+        public bool HandleIntersection(RayComponent ray, ColliderComponent collider, TransformComponent transform, out float2 hitPoint)
         {
             RectColliderComponent rectCollider = (RectColliderComponent) collider;
 
             hitPoint = float2.zero;
             float minDist = float.MaxValue;
 
-            float2x2 rotate = float2x2.Rotate(rotation.Value);
+            float2x2 rotate = float2x2.Rotate(transform.Rotation);
             float2x4 vertices = float2x4.zero;
             for (int i = 0; i < 4; i++)
-                vertices[i] = MathHelper.Mul(rotate, rectCollider.Vertices[i]) + translation.Value;
+                vertices[i] = MathHelper.Mul(rotate, rectCollider.Vertices[i]) + transform.Position;
             
             for (int i = 0; i < 4; i++)
             {

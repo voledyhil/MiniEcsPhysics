@@ -4,15 +4,14 @@ namespace Models
 {
     public class RayIntersectionCircle : IRayIntersectionCallback
     {
-        public bool HandleIntersection(RayComponent ray, ColliderComponent collider, TranslationComponent translation, RotationComponent rotation,
-            out float2 hitPoint)
+        public bool HandleIntersection(RayComponent ray, ColliderComponent collider, TransformComponent transform, out float2 hitPoint)
         {
             hitPoint = float2.zero;
             float2 source = ray.Source;
             float2 target = ray.Target;
 
             CircleColliderComponent circleCollider = (CircleColliderComponent) collider;
-            float2 pos = translation.Value;
+            float2 pos = transform.Position;
             float r = circleCollider.Radius;
 
             float t;
