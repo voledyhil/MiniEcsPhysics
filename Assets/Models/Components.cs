@@ -127,11 +127,13 @@ namespace Models
     public class BroadphaseRefComponent : IEcsComponent
     {
         public byte Index => ComponentType.BroadphaseRef;
-        public List<SAPChunk> Items;
+        public List<SAPChunk> Chunks;
+        public int ChunksHash;
     }
 
     public class SAPChunk
     {
+        public int Id { get; }
         public int Length;
         public bool NeedRebuild;
         
@@ -139,7 +141,13 @@ namespace Models
         public long[] Pairs = new long[32];
         public int PairLength;
         public int SortAxis;
-        public bool IsDirty;
+        public int DynamicCounter;
+        public bool IsDirty = true;
+
+        public SAPChunk(int id)
+        {
+            Id = id;
+        }
     }
     
     public struct BroadphaseAABB
@@ -153,7 +161,7 @@ namespace Models
     public class BroadphaseSAPComponent : IEcsComponent
     {
         public byte Index => ComponentType.BroadphaseSAP;
-        public readonly Dictionary<int, SAPChunk> Items = new Dictionary<int, SAPChunk>();
+        public readonly Dictionary<int, SAPChunk> Chunks = new Dictionary<int, SAPChunk>();
         public readonly HashSet<long> Pairs = new HashSet<long>();
     }
 

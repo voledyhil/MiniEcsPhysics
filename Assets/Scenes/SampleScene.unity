@@ -2023,8 +2023,8 @@ MonoBehaviour:
   DynamicBlueBox: {fileID: 971418749}
   DynamicBlueCircle: {fileID: 1801796387}
   Hero: {fileID: 479999330}
-  StaticRectCount: 3000
-  StaticCircleCount: 3000
+  StaticRectCount: 1000
+  StaticCircleCount: 1000
   DynamicBlueCircleCount: 500
   DynamicBlueRectCount: 500
   DynamicYellowCircleCount: 500

@@ -28,32 +28,32 @@ namespace Models.Systems.Physics
 
             foreach (EcsEntity entity in entities)
             {
+                uint entityId = entity.Id;
+                
                 TranslationComponent tr = (TranslationComponent) entity[ComponentType.Translation];
                 RotationComponent rot = (RotationComponent) entity[ComponentType.Rotation];
                 ColliderComponent col = (ColliderComponent) entity[ComponentType.Collider];
                 RigBodyComponent rig = (RigBodyComponent) entity[ComponentType.RigBody];
 
                 AABB aabb = new AABB(col.Size, tr.Value, col.ColliderType == ColliderType.Rect ? rot.Value : 0f);
-
-                List<SAPChunk> chunks = new List<SAPChunk>();
-                foreach (SAPChunk chunk in BroadphaseHelper.GetChunks(aabb, bpChunks))
+                bool isStatic = MathHelper.Equal(rig.InvMass, 0);
+                int layer = col.Layer;
+                
+                List<SAPChunk> chunks = new List<SAPChunk>(4);
+                foreach (int chunkId in BroadphaseHelper.GetChunks(aabb))
                 {
-                    if (chunk.Length >= chunk.Items.Length)
-                        Array.Resize(ref chunk.Items, 2 * chunk.Length);
+                    SAPChunk chunk = BroadphaseHelper.GetOrCreateChunk(chunkId, bpChunks);
 
-                    chunk.Items[chunk.Length++] = new BroadphaseAABB
-                    {
-                        AABB = aabb, 
-                        Id = entity.Id, 
-                        IsStatic = MathHelper.Equal(rig.InvMass, 0),
-                        Layer = col.Layer
-                    };
-                    chunk.IsDirty = true;
+                    BroadphaseHelper.AddToChunk(chunk, entityId, aabb, isStatic, layer);
 
                     chunks.Add(chunk);
                 }
 
-                BroadphaseRefComponent bpRef = new BroadphaseRefComponent {Items = chunks};
+                BroadphaseRefComponent bpRef = new BroadphaseRefComponent
+                {
+                    Chunks = chunks,
+                    ChunksHash = BroadphaseHelper.CalculateChunksHash(aabb)
+                };
                 entity[ComponentType.BroadphaseRef] = bpRef;
             }
         }

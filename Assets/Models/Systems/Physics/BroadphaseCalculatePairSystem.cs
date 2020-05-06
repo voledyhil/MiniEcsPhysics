@@ -24,20 +24,23 @@ namespace Models.Systems.Physics
                 world.GetOrCreateSingleton<BroadphaseSAPComponent>(ComponentType.BroadphaseSAP); 
 
             bpChunks.Pairs.Clear();
-            foreach (SAPChunk chunk in bpChunks.Items.Values)
+            foreach (SAPChunk chunk in bpChunks.Chunks.Values)
             {
                 if (chunk.NeedRebuild)
                     BroadphaseHelper.BuildChunks(chunk);
 
-                if (chunk.IsDirty)
+                if (chunk.DynamicCounter > 0 || chunk.IsDirty)
+                {
                     CalculatePairs(chunk);
+                    chunk.IsDirty = chunk.DynamicCounter != 0;
+                }
 
                 for (int i = 0; i < chunk.PairLength; i++)
                     bpChunks.Pairs.Add(chunk.Pairs[i]);
             }
         }
 
-        public void CalculatePairs(SAPChunk chunk)
+        private void CalculatePairs(SAPChunk chunk)
         {
             chunk.PairLength = 0;
 
@@ -83,7 +86,6 @@ namespace Models.Systems.Physics
             float2 v = s2 / length - s * s / (length * length);
 
             chunk.SortAxis = v[1] > v[0] ? 1 : 0;
-            chunk.IsDirty = false;
         }
 
 

@@ -77,7 +77,7 @@ namespace Models.Systems
 
 				Object.Destroy(character.Ref.gameObject);
 
-				foreach (SAPChunk chunk in brRef.Items)
+				foreach (SAPChunk chunk in brRef.Chunks)
 					BroadphaseHelper.RemoveFormChunk(chunk, entity.Id);
 
 				entity.Destroy();
@@ -86,8 +86,8 @@ namespace Models.Systems
 		
 		private static void CalculateTransform(out Vector2 position, out float rotation)
 		{
-			float x = (Random.value > 0.5 ? 1 : -1) * 1500 * Random.value;
-			float y = (Random.value > 0.5 ? 1 : -1) * 1500 * Random.value;
+			float x = (Random.value > 0.5 ? 1 : -1) * 1000 * Random.value;
+			float y = (Random.value > 0.5 ? 1 : -1) * 1000 * Random.value;
 			position = new Vector2(x, y);
 			rotation = Random.Range(-math.PI, math.PI);
 		}

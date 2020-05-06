@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Unity.Mathematics;
 
@@ -9,16 +10,16 @@ namespace Models.Systems.Physics
 
         public static SAPChunk GetOrCreateChunk(int chunkId, BroadphaseSAPComponent bpChunks)
         {
-            if (bpChunks.Items.TryGetValue(chunkId, out SAPChunk bpChunk))
+            if (bpChunks.Chunks.TryGetValue(chunkId, out SAPChunk bpChunk))
                 return bpChunk;
 
-            bpChunk = new SAPChunk();
-            bpChunks.Items.Add(chunkId, bpChunk);
+            bpChunk = new SAPChunk(chunkId);
+            bpChunks.Chunks.Add(chunkId, bpChunk);
 
             return bpChunk;
         }
-
-        public static IEnumerable<SAPChunk> GetChunks(AABB aabb, BroadphaseSAPComponent bpChunks)
+        
+        public static IEnumerable<int> GetChunks(AABB aabb)
         {
             short minX = (short) math.floor(aabb.Min.x / CellSize);
             short minY = (short) math.floor(aabb.Min.y / CellSize);
@@ -27,7 +28,7 @@ namespace Models.Systems.Physics
 
             for (short k = minX; k <= maxX; k++)
             for (short j = minY; j <= maxY; j++)
-                yield return GetOrCreateChunk((k << 16) | (ushort) j, bpChunks);
+                yield return (k << 16) | (ushort) j;
         }
         
         public static void BuildChunks(SAPChunk chunk)
@@ -68,14 +69,57 @@ namespace Models.Systems.Physics
         {
             for (int i = 0; i < chunk.Length; i++)
             {
-                if (chunk.Items[i].Id != entityId)
+                BroadphaseAABB item = chunk.Items[i];
+                if (item.Id != entityId)
                     continue;
 
+                if (!item.IsStatic)
+                    chunk.DynamicCounter--;
+                
                 chunk.NeedRebuild = true;
-                chunk.IsDirty = true;
                 chunk.Items[i].Id = uint.MaxValue;
                 break;
             }
+        }
+        
+        public static void UpdateChunk(SAPChunk chunk, uint entityId, AABB aabb)
+        {
+            for (int i = 0; i < chunk.Length; i++)
+            {
+                if (chunk.Items[i].Id != entityId)
+                    continue;
+                chunk.Items[i].AABB = aabb;
+                break;
+            }
+        }
+        
+        public static void AddToChunk(SAPChunk chunk, uint entityId, AABB aabb, bool isStatic, int layer)
+        {
+            if (chunk.Length >= chunk.Items.Length)
+                Array.Resize(ref chunk.Items, 2 * chunk.Length);
+
+            chunk.Items[chunk.Length++] = new BroadphaseAABB
+            {
+                AABB = aabb,
+                Id = entityId,
+                IsStatic = isStatic,
+                Layer = layer
+            };
+            if (!isStatic)
+                chunk.DynamicCounter++;
+        }
+
+        public static int CalculateChunksHash(AABB aabb)
+        {
+            int hash = 647;
+            int counter = 0;
+            foreach (int chunkId in GetChunks(aabb))
+            {
+                hash ^= chunkId * 307;
+                counter++;
+            }
+            hash ^= counter * 367;
+            return hash;
         }
     }
 }

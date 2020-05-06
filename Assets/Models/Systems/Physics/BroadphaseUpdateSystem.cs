@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using MiniEcs.Core;
 using MiniEcs.Core.Systems;
@@ -11,7 +10,6 @@ namespace Models.Systems.Physics
     public class BroadphaseUpdateSystem : IEcsSystem
     {
         private readonly EcsFilter _entitiesFilter;
-
         public BroadphaseUpdateSystem()
         {
             _entitiesFilter = new EcsFilter().AllOf(ComponentType.Translation, ComponentType.Rotation,
@@ -25,59 +23,70 @@ namespace Models.Systems.Physics
 
             foreach (EcsEntity entity in world.Filter(_entitiesFilter))
             {
+                uint entityId = entity.Id;
+
                 TranslationComponent tr = (TranslationComponent) entity[ComponentType.Translation];
                 RotationComponent rot = (RotationComponent) entity[ComponentType.Rotation];
                 ColliderComponent col = (ColliderComponent) entity[ComponentType.Collider];
                 RigBodyComponent rig = (RigBodyComponent) entity[ComponentType.RigBody];
                 BroadphaseRefComponent brRef = (BroadphaseRefComponent) entity[ComponentType.BroadphaseRef];
-
+                
                 AABB aabb = new AABB(col.Size, tr.Value, col.ColliderType == ColliderType.Rect ? rot.Value : 0f);
-
-                List<SAPChunk> oldChunks = brRef.Items;
-                List<SAPChunk> newChunks = new List<SAPChunk>(BroadphaseHelper.GetChunks(aabb, bpChunks));
-
-                foreach (SAPChunk chunk in newChunks)
+                bool isStatic = MathHelper.Equal(rig.InvMass, 0);
+                int layer = col.Layer;
+                
+                List<SAPChunk> chunks = brRef.Chunks;
+                int chunksHash = BroadphaseHelper.CalculateChunksHash(aabb);                
+                if (brRef.ChunksHash == chunksHash)
                 {
-                    chunk.IsDirty = true;
+                    foreach (SAPChunk chunk in chunks)
+                    {
+                        BroadphaseHelper.UpdateChunk(chunk, entityId, aabb);
+                    }
+                    continue;
+                }
+                
+                List<SAPChunk> newChunks = new List<SAPChunk>(4);
+                foreach (int chunkId in BroadphaseHelper.GetChunks(aabb))
+                {
+                    int index = -1;
+                    for (int i = 0; i < chunks.Count; i++)
+                    {
+                        SAPChunk chunk = chunks[i];
+                        if (chunk == null || chunk.Id != chunkId)
+                            continue;
 
-                    int index = oldChunks.IndexOf(chunk);
+                        index = i;
+                        break;
+                    }
+
                     if (index >= 0)
                     {
-                        oldChunks[index] = null;
+                        SAPChunk chunk = chunks[index];
+                        chunks[index] = null;
+                        newChunks.Add(chunk);
                         
-                        for (int i = 0; i < chunk.Length; i++)
-                        {
-                            if (chunk.Items[i].Id != entity.Id)
-                                continue;
-                            chunk.Items[i].AABB = aabb;
-                            chunk.IsDirty = true;
-                            break;
-                        }
+                        BroadphaseHelper.UpdateChunk(chunk, entityId, aabb);
                     }
                     else
                     {
-                        if (chunk.Length >= chunk.Items.Length)
-                            Array.Resize(ref chunk.Items, 2 * chunk.Length);
-
-                        chunk.Items[chunk.Length++] = new BroadphaseAABB
-                        {
-                            AABB = aabb, 
-                            Id = entity.Id, 
-                            IsStatic = MathHelper.Equal(rig.InvMass, 0),
-                            Layer = col.Layer
-                        };
+                        SAPChunk chunk = BroadphaseHelper.GetOrCreateChunk(chunkId, bpChunks);
+                        BroadphaseHelper.AddToChunk(chunk, entityId, aabb, isStatic, layer);
+                        
+                        newChunks.Add(chunk);
                     }
                 }
 
-                foreach (SAPChunk chunk in oldChunks)
+                foreach (SAPChunk chunk in chunks)
                 {
                     if (chunk == null)
                         continue;
 
-                    BroadphaseHelper.RemoveFormChunk(chunk, entity.Id);
+                    BroadphaseHelper.RemoveFormChunk(chunk, entityId);
                 }
 
-                brRef.Items = newChunks;
+                brRef.Chunks = newChunks;
+                brRef.ChunksHash = chunksHash;
             }
         }
     }

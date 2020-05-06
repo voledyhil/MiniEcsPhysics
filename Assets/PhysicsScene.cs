@@ -21,9 +21,9 @@ public class PhysicsScene : MonoBehaviour
 	
 	[Space]
 	[Range(0, 10000)] 
-	[SerializeField] public int StaticRectCount = 3000;
+	[SerializeField] public int StaticRectCount = 1000;
 	[Range(0, 10000)]
-	[SerializeField] public int StaticCircleCount = 3000;
+	[SerializeField] public int StaticCircleCount = 1000;
 	[Range(0, 10000)]
 	[SerializeField] public int DynamicBlueCircleCount = 500;
 	[Range(0, 10000)]
