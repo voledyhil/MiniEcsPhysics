@@ -25,11 +25,8 @@ namespace Physics
 
             foreach (EcsEntity entity in world.Filter(_entitiesFilter))
             {
-                uint entityId = entity.Id;
-
                 TransformComponent tr = (TransformComponent) entity[ComponentType.Transform];
                 ColliderComponent col = (ColliderComponent) entity[ComponentType.Collider];
-                RigBodyComponent rig = (RigBodyComponent) entity[ComponentType.RigBody];
                 BroadphaseRefComponent bpRef = (BroadphaseRefComponent) entity[ComponentType.BroadphaseRef];
                 
                 AABB aabb = new AABB(col.Size, tr.Position, col.ColliderType == ColliderType.Rect ? tr.Rotation : 0f);
@@ -42,7 +39,10 @@ namespace Physics
                 int chunksHash = BroadphaseHelper.CalculateChunksHash(aabb);                
                 if (bpRef.ChunksHash == chunksHash)
                     continue;
-                
+               
+                RigBodyComponent rig = (RigBodyComponent) entity[ComponentType.RigBody];
+               
+                uint entityId = entity.Id;
                 bool isStatic = MathHelper.Equal(rig.InvMass, 0);
                 int layer = col.Layer;
                 

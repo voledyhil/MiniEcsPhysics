@@ -11,14 +11,11 @@ namespace Physics
     {
         private readonly CollisionMatrix _collisionMatrix;
         private readonly EcsFilter _rayFilter;
-        private readonly EcsFilter _targetsFilter;
 
         public RaytracingSystem(CollisionMatrix collisionMatrix)
         {
             _collisionMatrix = collisionMatrix;
             _rayFilter = new EcsFilter().AllOf(ComponentType.Ray, ComponentType.Transform);
-            _targetsFilter =
-                new EcsFilter().AllOf(ComponentType.Transform, ComponentType.RigBody, ComponentType.Collider);
         }
 
         private int[] _chunksBuffer = new int[100];
@@ -29,8 +26,6 @@ namespace Physics
             BroadphaseSAPComponent bpChunks =
                 world.GetOrCreateSingleton<BroadphaseSAPComponent>(ComponentType.BroadphaseSAP);
 
-            IEcsGroup targetEntities = world.Filter(_targetsFilter);
-            
             foreach (EcsEntity entity in world.Filter(_rayFilter))
             {
                 TransformComponent tr = (TransformComponent) entity[ComponentType.Transform];
@@ -64,7 +59,7 @@ namespace Physics
                         if (!_collisionMatrix.Check(ray.Layer, item.Layer))
                             continue;
 
-                        EcsEntity targetEntity = targetEntities[item.Id];
+                        EcsEntity targetEntity = item.Entity;
                         if (entity == targetEntity)
                             continue;
 
