@@ -1,7 +1,8 @@
+using MiniEcs.Components;
 using MiniEcs.Core;
 using MiniEcs.Core.Systems;
 
-namespace Models.Systems.Physics
+namespace Physics
 {
     [EcsUpdateInGroup(typeof(PhysicsSystemGroup))]
     [EcsUpdateAfter(typeof(BroadphaseInitSystem))]
@@ -24,7 +25,6 @@ namespace Models.Systems.Physics
                 RigBodyComponent rigBody = (RigBodyComponent) entity[ComponentType.RigBody];
 
                 transform.Position += rigBody.Velocity * deltaTime;
-                transform.Rotation += rigBody.AngularVelocity * deltaTime;
             }
         }
     }

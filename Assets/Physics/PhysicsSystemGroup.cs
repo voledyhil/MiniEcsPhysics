@@ -1,6 +1,6 @@
 using MiniEcs.Core.Systems;
 
-namespace Models.Systems.Physics
+namespace Physics
 {
     public class PhysicsSystemGroup : EcsSystemGroup
     {

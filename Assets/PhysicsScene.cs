@@ -1,9 +1,8 @@
 using System.Collections.Generic;
+using MiniEcs.Components;
 using MiniEcs.Core;
 using MiniEcs.Core.Systems;
-using Models;
-using Models.Systems;
-using Models.Systems.Physics;
+using Physics;
 using UnityEngine;
 
 public class PhysicsScene : MonoBehaviour

@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
+using MiniEcs.Components;
 using MiniEcs.Core;
 using MiniEcs.Core.Systems;
 using Unity.Mathematics;
 
-namespace Models.Systems.Physics
+namespace Physics
 {
     [EcsUpdateInGroup(typeof(PhysicsSystemGroup))]
     [EcsUpdateAfter(typeof(BroadphaseUpdateSystem))]

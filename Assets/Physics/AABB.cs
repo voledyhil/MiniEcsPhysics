@@ -1,23 +1,14 @@
 using Unity.Mathematics;
 
-namespace Models
+namespace Physics
 {
     public struct AABB
     {
         public float2 Min;
         public float2 Max;
-
-        public AABB(float2 min, float2 max)
-        {
-            Min = min;
-            Max = max;
-        }
         
         public AABB(float2 size, float2 position, float rotation)
         {
-            Min = float2.zero;
-            Max = float2.zero;
-
             math.sincos(rotation, out float sin, out float cos);
 
             float ex = math.max(math.abs(size.x * cos + size.y * sin), math.abs(size.x * cos - size.y * sin));

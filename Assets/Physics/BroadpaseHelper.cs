@@ -1,9 +1,69 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
+using MiniEcs.Components;
+using MiniEcs.Core;
 using Unity.Mathematics;
 
-namespace Models.Systems.Physics
+namespace Physics
 {
+    public class SAPChunk
+    {
+        public readonly int Id;
+        public int Length;
+        public bool NeedRebuild;
+        
+        public BroadphaseAABB[] Items = new BroadphaseAABB[32];
+        public BroadphasePair[] Pairs = new BroadphasePair[32];
+        public int PairLength;
+        public int SortAxis;
+        public int DynamicCounter;
+        public bool IsDirty = true;
+
+        public SAPChunk(int id)
+        {
+            Id = id;
+        }
+    }
+    
+    [StructLayout(LayoutKind.Sequential)]
+    public unsafe struct BroadphaseAABB
+    {
+        public EcsEntity Entity;
+        public uint Id;
+        public int Layer;
+        public bool IsStatic;
+        public AABB* AABB;
+    }
+    
+    public struct BroadphasePair : IEquatable<BroadphasePair>
+    {
+        public EcsEntity EntityA { get; }
+        public EcsEntity EntityB { get; }
+
+        public BroadphasePair(EcsEntity entityA, EcsEntity entityB)
+        {
+            EntityA = entityA;
+            EntityB = entityB;
+        }
+
+        public bool Equals(BroadphasePair other)
+        {
+            return EntityA == other.EntityA && EntityB == other.EntityB ||
+                   EntityB == other.EntityA && EntityA == other.EntityB;
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hash = (int)EntityA.Id;
+                hash = (hash * 397) ^ (int)EntityB.Id;
+                return hash;
+            }
+        }
+    }
+    
     public static class BroadphaseHelper
     {
         public const float ChunkSize = 50;
