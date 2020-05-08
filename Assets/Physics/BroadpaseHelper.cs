@@ -128,6 +128,9 @@ namespace Physics
         public static void RemoveFormChunk(SAPChunk chunk, uint entityId)
         {
             int index = Array.FindIndex(chunk.Items, 0, chunk.Length, bp => bp.Id == entityId);
+            if (index < 0)
+                throw new InvalidOperationException($"entity by id '{entityId}' not found in chunk '{chunk.Id}'");
+            
             BroadphaseAABB item = chunk.Items[index];
             
             if (!item.IsStatic)

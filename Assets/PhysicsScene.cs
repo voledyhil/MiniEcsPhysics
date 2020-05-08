@@ -36,6 +36,7 @@ public class PhysicsScene : MonoBehaviour
 			new List<object> {"yellow", true},
 		});
 
+	
 	private void Start()
 	{
 		_world = new EcsWorld(ComponentType.TotalComponents);
@@ -48,6 +49,7 @@ public class PhysicsScene : MonoBehaviour
 		_engine.AddSystem(new BroadphaseCalculatePairSystem(_collisionMatrix));
 		_engine.AddSystem(new ResolveCollisionsSystem());
 		_engine.AddSystem(new RaytracingSystem(_collisionMatrix));
+		_engine.AddSystem(new BroadphaseClearPairSystem());
 		
 		_engine.AddSystem(new CreatorSystem(this, _collisionMatrix));
 		_engine.AddSystem(new InputSystem());
@@ -55,7 +57,7 @@ public class PhysicsScene : MonoBehaviour
 	}
 
 	private void Update()
-	{		
+	{
 		_engine.Update(Time.deltaTime, _world);
 	}
 }
