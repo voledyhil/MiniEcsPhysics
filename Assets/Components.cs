@@ -1,51 +1,26 @@
 using MiniEcs.Core;
 
-namespace MiniEcs.Components
+public class HeroComponent : IEcsComponent
 {
-    public partial class ComponentType
-    {
-        public const byte Hero = 7;
-        public const byte Character = 8;
+}
 
-        public const byte StaticRect = 9;
-        public const byte StaticCircle = 10;
-        public const byte BlueCircle = 11;
-        public const byte YellowCircle = 12;
+public class CharacterComponent : IEcsComponent
+{
+    public Character Ref;
+}
 
-        public const byte TotalComponents = 13;
-    }    
-    
-    
-    public class HeroComponent : IEcsComponent
-    {
-        public byte Index => ComponentType.Hero;
-    }
+public class StaticRectComponent : IEcsComponent
+{
+}
 
-    public class CharacterComponent : IEcsComponent
-    {
-        public byte Index => ComponentType.Character;
+public class StaticCircleComponent : IEcsComponent
+{
+}
 
-        public Character Ref;
-    }
+public class BlueCircleComponent : IEcsComponent
+{
+}
 
-    public class StaticRectComponent : IEcsComponent
-    {
-        public byte Index => ComponentType.StaticRect;
-    }
-
-    public class StaticCircleComponent : IEcsComponent
-    {
-        public byte Index => ComponentType.StaticCircle;
-    }
-
-    public class BlueCircleComponent : IEcsComponent
-    {
-        public byte Index => ComponentType.BlueCircle;
-    }
-
-    public class YellowCircleComponent : IEcsComponent
-    {
-        public byte Index => ComponentType.YellowCircle;
-    }
-
+public class YellowCircleComponent : IEcsComponent
+{
 }

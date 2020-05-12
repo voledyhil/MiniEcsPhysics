@@ -1,4 +1,3 @@
-using MiniEcs.Components;
 using MiniEcs.Core;
 using MiniEcs.Core.Systems;
 using Unity.Mathematics;
@@ -15,7 +14,7 @@ namespace Physics
         public RaytracingSystem(CollisionMatrix collisionMatrix)
         {
             _collisionMatrix = collisionMatrix;
-            _rayFilter = new EcsFilter().AllOf(ComponentType.Ray, ComponentType.Transform);
+            _rayFilter = new EcsFilter().AllOf<RayComponent, TransformComponent>();
         }
 
         private int[] _chunksBuffer = new int[100];
@@ -23,13 +22,12 @@ namespace Physics
 
         public unsafe void Update(float deltaTime, EcsWorld world)
         {
-            BroadphaseSAPComponent bpChunks =
-                world.GetOrCreateSingleton<BroadphaseSAPComponent>(ComponentType.BroadphaseSAP);
+            BroadphaseSAPComponent bpChunks = world.GetOrCreateSingleton<BroadphaseSAPComponent>();
 
             foreach (EcsEntity entity in world.Filter(_rayFilter))
             {
-                TransformComponent tr = (TransformComponent) entity[ComponentType.Transform];
-                RayComponent ray = (RayComponent) entity[ComponentType.Ray];
+                TransformComponent tr = entity.GetComponent<TransformComponent>();
+                RayComponent ray = entity.GetComponent<RayComponent>();
 
                 ray.Hit = false;
                 ray.Source = tr.Position;
@@ -63,16 +61,16 @@ namespace Physics
                         if (entity == targetEntity)
                             continue;
 
-                        tr = (TransformComponent) targetEntity[ComponentType.Transform];
-                        ColliderComponent col = (ColliderComponent) targetEntity[ComponentType.Collider];
+                        tr = targetEntity.GetComponent<TransformComponent>();
+                        ColliderComponent col = targetEntity.GetComponent<ColliderComponent>();
 
                         float2 hitPoint = float2.zero;
                         switch (col.ColliderType)
                         {
                             case ColliderType.Circle
-                                when !OnIntersection(ray, (CircleColliderComponent) col, tr, out hitPoint):
+                                when !OnRectIntersection(ray, col, tr, out hitPoint):
                             case ColliderType.Rect
-                                when !OnIntersection(ray, (RectColliderComponent) col, tr, out hitPoint):
+                                when !OnRectIntersection(ray, col, tr, out hitPoint):
                                 continue;
                         }
 
@@ -184,14 +182,14 @@ namespace Physics
             points[length - 1] = target - offset;
         }
 
-        private static bool OnIntersection(RayComponent ray, CircleColliderComponent col, TransformComponent tr,
+        private static bool OnCircleIntersection(RayComponent ray, ColliderComponent col, TransformComponent tr,
             out float2 hitPoint)
         {
             hitPoint = float2.zero;
             float2 source = ray.Source;
             float2 target = ray.Target;
             float2 pos = tr.Position;
-            float r = col.Radius;
+            float r = col.Size.x;
 
             float t;
             float dx = target.x - source.x;
@@ -226,7 +224,7 @@ namespace Physics
             return true;
         }
 
-        private static bool OnIntersection(RayComponent ray, RectColliderComponent col, TransformComponent tr,
+        private static bool OnRectIntersection(RayComponent ray, ColliderComponent col, TransformComponent tr,
             out float2 hitPoint)
         {
             hitPoint = float2.zero;

@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using MiniEcs.Components;
 using MiniEcs.Core;
 using MiniEcs.Core.Systems;
 using Physics;
@@ -39,7 +38,7 @@ public class PhysicsScene : MonoBehaviour
 	
 	private void Start()
 	{
-		_world = new EcsWorld(ComponentType.TotalComponents);
+		_world = new EcsWorld();
 
 		_engine = new EcsSystemGroup();
 		

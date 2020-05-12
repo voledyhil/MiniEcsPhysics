@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using MiniEcs.Components;
 using MiniEcs.Core;
 using MiniEcs.Core.Systems;
 
@@ -15,15 +14,12 @@ namespace Physics
         
         public BroadphaseInitSystem()
         {
-            _entitiesFilter = new EcsFilter()
-                .AllOf(ComponentType.Transform, ComponentType.Collider, ComponentType.RigBody)
-                .NoneOf(ComponentType.BroadphaseRef);
+            _entitiesFilter = new EcsFilter().AllOf<TransformComponent, ColliderComponent, RigBodyComponent>().NoneOf<BroadphaseRefComponent>();
         }
         
         public unsafe void Update(float deltaTime, EcsWorld world)
         {
-            BroadphaseSAPComponent bpChunks =
-                world.GetOrCreateSingleton<BroadphaseSAPComponent>(ComponentType.BroadphaseSAP); 
+            BroadphaseSAPComponent bpChunks = world.GetOrCreateSingleton<BroadphaseSAPComponent>(); 
             
             List<EcsEntity> entities = world.Filter(_entitiesFilter).ToList();
 
@@ -31,9 +27,9 @@ namespace Physics
             {
                 uint entityId = entity.Id;
 
-                TransformComponent tr = (TransformComponent) entity[ComponentType.Transform];
-                ColliderComponent col = (ColliderComponent) entity[ComponentType.Collider];
-                RigBodyComponent rig = (RigBodyComponent) entity[ComponentType.RigBody];
+                TransformComponent tr = entity.GetComponent<TransformComponent>();
+                ColliderComponent col = entity.GetComponent<ColliderComponent>();
+                RigBodyComponent rig = entity.GetComponent<RigBodyComponent>();
 
                 AABB aabb = new AABB(col.Size, tr.Position, col.ColliderType == ColliderType.Rect ? tr.Rotation : 0f);
                 bool isStatic = MathHelper.Equal(rig.InvMass, 0);
@@ -51,7 +47,7 @@ namespace Physics
                     ChunksHash = BroadphaseHelper.CalculateChunksHash(aabb),
                     AABB = aabb
                 };
-                entity[ComponentType.BroadphaseRef] = bpRef;
+                entity.AddComponent(bpRef);
 
                 foreach (SAPChunk chunk in chunks)
                 {

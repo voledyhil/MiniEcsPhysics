@@ -1,4 +1,3 @@
-using MiniEcs.Components;
 using MiniEcs.Core;
 using MiniEcs.Core.Systems;
 
@@ -10,8 +9,7 @@ namespace Physics
     {
         public void Update(float deltaTime, EcsWorld world)
         {
-            BroadphaseSAPComponent bpChunks =
-                world.GetOrCreateSingleton<BroadphaseSAPComponent>(ComponentType.BroadphaseSAP);
+            BroadphaseSAPComponent bpChunks = world.GetOrCreateSingleton<BroadphaseSAPComponent>();
             
             bpChunks.Pairs.Clear();
         }

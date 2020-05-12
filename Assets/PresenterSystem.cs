@@ -1,4 +1,3 @@
-using MiniEcs.Components;
 using MiniEcs.Core;
 using MiniEcs.Core.Systems;
 using Physics;
@@ -14,18 +13,17 @@ public class PresenterSystem : IEcsSystem
 
     public PresenterSystem()
     {
-        _transformsFilter = new EcsFilter()
-            .AllOf(ComponentType.Transform, ComponentType.Character).NoneOf(ComponentType.RigBodyStatic);
-        _heroFilter = new EcsFilter().AllOf(ComponentType.Hero, ComponentType.Character);
-        _rayFilter = new EcsFilter().AllOf(ComponentType.Character, ComponentType.Ray);
+        _transformsFilter = new EcsFilter().AllOf<TransformComponent, CharacterComponent>().NoneOf<RigBodyStaticComponent>();
+        _heroFilter = new EcsFilter().AllOf<HeroComponent, CharacterComponent>();
+        _rayFilter = new EcsFilter().AllOf<CharacterComponent, RayComponent>();
     }
         
     public void Update(float deltaTime, EcsWorld world)
     {
         foreach (EcsEntity entity in world.Filter(_transformsFilter))
         {
-            TransformComponent transform = (TransformComponent) entity[ComponentType.Transform];
-            CharacterComponent character = (CharacterComponent) entity[ComponentType.Character];
+            TransformComponent transform = entity.GetComponent<TransformComponent>();
+            CharacterComponent character = entity.GetComponent<CharacterComponent>();
 			
             character.Ref.Transform.position = new Vector3(transform.Position.x, 0, transform.Position.y);
             character.Ref.Transform.rotation = Quaternion.Euler(0, -Mathf.Rad2Deg * transform.Rotation, 0);
@@ -33,8 +31,8 @@ public class PresenterSystem : IEcsSystem
 
         foreach (EcsEntity entity in world.Filter(_rayFilter))
         {
-            RayComponent ray = (RayComponent) entity[ComponentType.Ray];
-            CharacterComponent character = (CharacterComponent) entity[ComponentType.Character];
+            RayComponent ray = entity.GetComponent<RayComponent>();
+            CharacterComponent character = entity.GetComponent<CharacterComponent>();
 
             float2 target = ray.Hit ? ray.HitPoint : ray.Target;
 
@@ -45,7 +43,7 @@ public class PresenterSystem : IEcsSystem
 
         foreach (EcsEntity entity in world.Filter(_heroFilter))
         {
-            CharacterComponent character = (CharacterComponent) entity[ComponentType.Character];
+            CharacterComponent character = entity.GetComponent<CharacterComponent>();
 
             Transform camera = Camera.main.transform;
             camera.position = Vector3.Lerp(camera.position, character.Ref.transform.position + 10 * Vector3.up, 10 * Time.deltaTime);                

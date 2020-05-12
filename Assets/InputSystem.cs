@@ -1,4 +1,3 @@
-using MiniEcs.Components;
 using MiniEcs.Core;
 using MiniEcs.Core.Systems;
 using Physics;
@@ -12,15 +11,15 @@ public class InputSystem : IEcsSystem
 
     public InputSystem()
     {
-        _heroFilter = new EcsFilter().AllOf(ComponentType.Transform, ComponentType.RigBody, ComponentType.Hero);
+        _heroFilter = new EcsFilter().AllOf<TransformComponent, RigBodyComponent, HeroComponent>();
     }
         
     public void Update(float deltaTime, EcsWorld world)
     {
         foreach (EcsEntity entity in world.Filter(_heroFilter))
         {
-            TransformComponent rotation = (TransformComponent)entity[ComponentType.Transform];
-            RigBodyComponent rigBody = (RigBodyComponent)entity[ComponentType.RigBody];
+            TransformComponent rotation = entity.GetComponent<TransformComponent>();
+            RigBodyComponent rigBody = entity.GetComponent<RigBodyComponent>();
 		
             if (Input.GetKey(KeyCode.A))
             {

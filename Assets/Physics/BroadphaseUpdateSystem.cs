@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using MiniEcs.Components;
 using MiniEcs.Core;
 using MiniEcs.Core.Systems;
 
@@ -14,20 +13,20 @@ namespace Physics
         private readonly EcsFilter _entitiesFilter;
         public BroadphaseUpdateSystem()
         {
-            _entitiesFilter = new EcsFilter().AllOf(ComponentType.Transform, ComponentType.Collider, ComponentType.RigBody,
-                ComponentType.BroadphaseRef).NoneOf(ComponentType.RigBodyStatic);
+            _entitiesFilter = new EcsFilter()
+                .AllOf<TransformComponent, ColliderComponent, RigBodyComponent, BroadphaseRefComponent>()
+                .NoneOf<RigBodyStaticComponent>();
         }
 
         public unsafe void Update(float deltaTime, EcsWorld world)
         {
-            BroadphaseSAPComponent bpChunks =
-                world.GetOrCreateSingleton<BroadphaseSAPComponent>(ComponentType.BroadphaseSAP); 
+            BroadphaseSAPComponent bpChunks = world.GetOrCreateSingleton<BroadphaseSAPComponent>(); 
 
             foreach (EcsEntity entity in world.Filter(_entitiesFilter))
             {
-                TransformComponent tr = (TransformComponent) entity[ComponentType.Transform];
-                ColliderComponent col = (ColliderComponent) entity[ComponentType.Collider];
-                BroadphaseRefComponent bpRef = (BroadphaseRefComponent) entity[ComponentType.BroadphaseRef];
+                TransformComponent tr = entity.GetComponent<TransformComponent>();
+                ColliderComponent col = entity.GetComponent<ColliderComponent>();
+                BroadphaseRefComponent bpRef = entity.GetComponent<BroadphaseRefComponent>();
                 
                 AABB aabb = new AABB(col.Size, tr.Position, col.ColliderType == ColliderType.Rect ? tr.Rotation : 0f);
                 fixed (AABB* pAABB = &bpRef.AABB)
@@ -40,7 +39,7 @@ namespace Physics
                 if (bpRef.ChunksHash == chunksHash)
                     continue;
                
-                RigBodyComponent rig = (RigBodyComponent) entity[ComponentType.RigBody];
+                RigBodyComponent rig = entity.GetComponent<RigBodyComponent>();
                
                 uint entityId = entity.Id;
                 bool isStatic = MathHelper.Equal(rig.InvMass, 0);

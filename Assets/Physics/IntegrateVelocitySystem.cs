@@ -1,4 +1,3 @@
-using MiniEcs.Components;
 using MiniEcs.Core;
 using MiniEcs.Core.Systems;
 
@@ -13,16 +12,15 @@ namespace Physics
 
         public IntegrateVelocitySystem()
         {
-            _filter = new EcsFilter()
-                .AllOf(ComponentType.Transform, ComponentType.RigBody).NoneOf(ComponentType.RigBodyStatic);
+            _filter = new EcsFilter().AllOf<TransformComponent, RigBodyComponent>().NoneOf<RigBodyStaticComponent>();
         }
 
         public void Update(float deltaTime, EcsWorld world)
         {
             foreach (EcsEntity entity in world.Filter(_filter))
             {
-                TransformComponent transform = (TransformComponent) entity[ComponentType.Transform];
-                RigBodyComponent rigBody = (RigBodyComponent) entity[ComponentType.RigBody];
+                TransformComponent transform = entity.GetComponent<TransformComponent>();
+                RigBodyComponent rigBody = entity.GetComponent<RigBodyComponent>();
 
                 transform.Position += rigBody.Velocity * deltaTime;
             }

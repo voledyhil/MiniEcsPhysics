@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using MiniEcs.Components;
 using MiniEcs.Core;
 using Unity.Mathematics;
 
