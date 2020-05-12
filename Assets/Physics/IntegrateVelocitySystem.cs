@@ -17,7 +17,7 @@ namespace Physics
 
         public void Update(float deltaTime, EcsWorld world)
         {
-            foreach (EcsEntity entity in world.Filter(_filter))
+            foreach (IEcsEntity entity in world.Filter(_filter))
             {
                 TransformComponent transform = entity.GetComponent<TransformComponent>();
                 RigBodyComponent rigBody = entity.GetComponent<RigBodyComponent>();

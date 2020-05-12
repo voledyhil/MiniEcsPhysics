@@ -22,7 +22,7 @@ namespace Physics
         {
             BroadphaseSAPComponent bpChunks = world.GetOrCreateSingleton<BroadphaseSAPComponent>(); 
 
-            foreach (EcsEntity entity in world.Filter(_entitiesFilter))
+            foreach (IEcsEntity entity in world.Filter(_entitiesFilter))
             {
                 TransformComponent tr = entity.GetComponent<TransformComponent>();
                 ColliderComponent col = entity.GetComponent<ColliderComponent>();

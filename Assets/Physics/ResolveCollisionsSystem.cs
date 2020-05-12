@@ -16,8 +16,8 @@ namespace Physics
 
 			foreach (BroadphasePair pair in bpChunks.Pairs)
 			{
-				EcsEntity entityA = pair.EntityA;
-				EcsEntity entityB = pair.EntityB;
+				IEcsEntity entityA = pair.EntityA;
+				IEcsEntity entityB = pair.EntityB;
 
 				TransformComponent ta = entityA.GetComponent<TransformComponent>();
 				TransformComponent tb = entityB.GetComponent<TransformComponent>();
@@ -25,20 +25,22 @@ namespace Physics
 				ColliderComponent cb = entityB.GetComponent<ColliderComponent>();
 
 				ContactInfo info;
-				switch (ca.ColliderType)
+				if (ca.ColliderType == ColliderType.Circle && cb.ColliderType == ColliderType.Circle)
 				{
-					case ColliderType.Circle when cb.ColliderType == ColliderType.Circle:
-						OnCircleCircleCollision(ca, ta, cb, tb, out info);
-						break;
-					case ColliderType.Circle when cb.ColliderType == ColliderType.Rect:
-						OnCircleRectCollision(ca, ta, cb, tb, out info);
-						break;
-					case ColliderType.Rect when cb.ColliderType == ColliderType.Circle:
-						OnCircleRectCollision(cb, tb, ca, ta, out info);
-						info.Normal = -info.Normal;
-						break;
-					default:
-						throw new InvalidOperationException();
+					OnCircleCircleCollision(ca, ta, cb, tb, out info);
+				}
+				else if (ca.ColliderType == ColliderType.Circle && cb.ColliderType == ColliderType.Rect)
+				{
+					OnCircleRectCollision(ca, ta, cb, tb, out info);
+				}
+				else if (ca.ColliderType == ColliderType.Rect && cb.ColliderType == ColliderType.Circle)
+				{
+					OnCircleRectCollision(cb, tb, ca, ta, out info);
+					info.Normal = -info.Normal;
+				}
+				else
+				{
+					throw new InvalidOperationException();
 				}
 
 				if (!info.Hit)

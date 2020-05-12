@@ -28,7 +28,7 @@ namespace Physics
     [StructLayout(LayoutKind.Sequential)]
     public unsafe struct BroadphaseAABB
     {
-        public EcsEntity Entity;
+        public IEcsEntity Entity;
         public uint Id;
         public int Layer;
         public bool IsStatic;
@@ -37,10 +37,10 @@ namespace Physics
     
     public struct BroadphasePair : IEquatable<BroadphasePair>
     {
-        public EcsEntity EntityA { get; }
-        public EcsEntity EntityB { get; }
+        public IEcsEntity EntityA { get; }
+        public IEcsEntity EntityB { get; }
 
-        public BroadphasePair(EcsEntity entityA, EcsEntity entityB)
+        public BroadphasePair(IEcsEntity entityA, IEcsEntity entityB)
         {
             EntityA = entityA;
             EntityB = entityB;

@@ -44,7 +44,7 @@ public class CreatorSystem : IEcsSystem
 		if (world.Filter(_heroFilter).CalculateCount() > 0) 
 			return;
 			
-		EcsEntity heroEntity = CreateCircleEntity(world, Vector2.zero, 0, 5, 1, "Default", 150);
+		IEcsEntity heroEntity = CreateCircleEntity(world, Vector2.zero, 0, 5, 1, "Default", 150);
 		heroEntity.AddComponent(new HeroComponent());
 		Instantiate(_physicsScene.Hero, heroEntity);
 	}
@@ -55,7 +55,7 @@ public class CreatorSystem : IEcsSystem
 		if (group.CalculateCount() == count) 
 			return;
 			
-		List<EcsEntity> entities = group.ToList();
+		List<IEcsEntity> entities = group.ToList();
 		for (int i = entities.Count; i < count; i++)
 		{
 			createEntity(world);
@@ -63,7 +63,7 @@ public class CreatorSystem : IEcsSystem
 			
 		for (int i = count; i < entities.Count; i++)
 		{
-			EcsEntity entity = entities[i];
+			IEcsEntity entity = entities[i];
 			BroadphaseRefComponent brRef = entity.GetComponent<BroadphaseRefComponent>();
 			CharacterComponent character = entity.GetComponent<CharacterComponent>();
 
@@ -89,7 +89,7 @@ public class CreatorSystem : IEcsSystem
 		CalculateTransform(out Vector2 position, out float rotation);
 			
 		float radius = Random.Range(2f, 4f);
-		EcsEntity circleEntity = CreateCircleEntity(world, position, rotation, radius, 1, "yellow", 0);
+		IEcsEntity circleEntity = CreateCircleEntity(world, position, rotation, radius, 1, "yellow", 0);
 		circleEntity.AddComponent(new YellowCircleComponent());
 		Instantiate(_physicsScene.DynamicYellowCircle, circleEntity);
 	}
@@ -99,7 +99,7 @@ public class CreatorSystem : IEcsSystem
 		CalculateTransform(out Vector2 position, out float rotation);
 
 		float radius = Random.Range(2f, 4f);
-		EcsEntity circleEntity = CreateCircleEntity(world, position, rotation, radius, 1, "blue", 100);
+		IEcsEntity circleEntity = CreateCircleEntity(world, position, rotation, radius, 1, "blue", 100);
 		circleEntity.AddComponent(new BlueCircleComponent());
 		Instantiate(_physicsScene.DynamicBlueCircle, circleEntity);
 	}
@@ -109,7 +109,7 @@ public class CreatorSystem : IEcsSystem
 		CalculateTransform(out Vector2 position, out float rotation);
 
 		Vector2 size = new Vector2(Random.Range(5f, 10f), Random.Range(5f, 10f));
-		EcsEntity rectEntity = CreateRectEntity(world, position, rotation, size, 0, "Default", 0);
+		IEcsEntity rectEntity = CreateRectEntity(world, position, rotation, size, 0, "Default", 0);
 		rectEntity.AddComponent(new StaticRectComponent());
 		Instantiate(_physicsScene.StaticRect, rectEntity);
 	}
@@ -119,12 +119,12 @@ public class CreatorSystem : IEcsSystem
 		CalculateTransform(out Vector2 position, out float rotation);
 
 		float radius = Random.Range(5f, 10f);
-		EcsEntity circleEntity = CreateCircleEntity(world, position, rotation, radius, 0, "Default", 0);
+		IEcsEntity circleEntity = CreateCircleEntity(world, position, rotation, radius, 0, "Default", 0);
 		circleEntity.AddComponent(new StaticCircleComponent());
 		Instantiate(_physicsScene.StaticCircle, circleEntity);
 	}
 
-	private static void Instantiate(GameObject prefab, EcsEntity entity)
+	private static void Instantiate(GameObject prefab, IEcsEntity entity)
 	{
 		TransformComponent tr = entity.GetComponent<TransformComponent>();
 		ColliderComponent col = entity.GetComponent<ColliderComponent>();
@@ -142,7 +142,7 @@ public class CreatorSystem : IEcsSystem
 		entity.AddComponent(new CharacterComponent {Ref = character});
 	}
 
-	private EcsEntity CreateCircleEntity(EcsWorld world, Vector2 position, float rotation, float radius, float mass, string colliderLayer, float rayLength)
+	private IEcsEntity CreateCircleEntity(EcsWorld world, Vector2 position, float rotation, float radius, float mass, string colliderLayer, float rayLength)
 	{
 		return CreateEntity(world, position, rotation, new ColliderComponent
 			{
@@ -153,7 +153,7 @@ public class CreatorSystem : IEcsSystem
 			mass, rayLength);
 	}
 
-	private EcsEntity CreateRectEntity(EcsWorld world, Vector2 position, float rotation, Vector2 size, float mass,
+	private IEcsEntity CreateRectEntity(EcsWorld world, Vector2 position, float rotation, Vector2 size, float mass,
 		string colliderLayer, float rayLength)
 	{
 		return CreateEntity(world, position, rotation, new ColliderComponent
@@ -165,9 +165,9 @@ public class CreatorSystem : IEcsSystem
 			mass, rayLength);
 	}
 
-	private EcsEntity CreateEntity(EcsWorld world, Vector2 position, float rotation, ColliderComponent col, float mass, float rayLength)
+	private IEcsEntity CreateEntity(EcsWorld world, Vector2 position, float rotation, ColliderComponent col, float mass, float rayLength)
 	{
-		EcsEntity entity = world.CreateEntity(
+		IEcsEntity entity = world.CreateEntity(
 			col,
 			new RigBodyComponent
 			{

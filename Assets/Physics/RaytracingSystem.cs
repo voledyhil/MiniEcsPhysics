@@ -24,7 +24,7 @@ namespace Physics
         {
             BroadphaseSAPComponent bpChunks = world.GetOrCreateSingleton<BroadphaseSAPComponent>();
 
-            foreach (EcsEntity entity in world.Filter(_rayFilter))
+            foreach (IEcsEntity entity in world.Filter(_rayFilter))
             {
                 TransformComponent tr = entity.GetComponent<TransformComponent>();
                 RayComponent ray = entity.GetComponent<RayComponent>();
@@ -57,7 +57,7 @@ namespace Physics
                         if (!_collisionMatrix.Check(ray.Layer, item.Layer))
                             continue;
 
-                        EcsEntity targetEntity = item.Entity;
+                        IEcsEntity targetEntity = item.Entity;
                         if (entity == targetEntity)
                             continue;
 
@@ -65,14 +65,9 @@ namespace Physics
                         ColliderComponent col = targetEntity.GetComponent<ColliderComponent>();
 
                         float2 hitPoint = float2.zero;
-                        switch (col.ColliderType)
-                        {
-                            case ColliderType.Circle
-                                when !OnRectIntersection(ray, col, tr, out hitPoint):
-                            case ColliderType.Rect
-                                when !OnRectIntersection(ray, col, tr, out hitPoint):
-                                continue;
-                        }
+                        if (col.ColliderType == ColliderType.Circle && !OnCircleIntersection(ray, col, tr, out hitPoint) ||
+                            col.ColliderType == ColliderType.Rect && !OnRectIntersection(ray, col, tr, out hitPoint))
+                            continue;
 
                         float dist = math.distancesq(p1, hitPoint);
                         if (!(dist < minDist))

@@ -21,9 +21,9 @@ namespace Physics
         {
             BroadphaseSAPComponent bpChunks = world.GetOrCreateSingleton<BroadphaseSAPComponent>(); 
             
-            List<EcsEntity> entities = world.Filter(_entitiesFilter).ToList();
+            List<IEcsEntity> entities = world.Filter(_entitiesFilter).ToList();
 
-            foreach (EcsEntity entity in entities)
+            foreach (IEcsEntity entity in entities)
             {
                 uint entityId = entity.Id;
 

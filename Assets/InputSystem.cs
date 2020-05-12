@@ -16,7 +16,7 @@ public class InputSystem : IEcsSystem
         
     public void Update(float deltaTime, EcsWorld world)
     {
-        foreach (EcsEntity entity in world.Filter(_heroFilter))
+        foreach (IEcsEntity entity in world.Filter(_heroFilter))
         {
             TransformComponent rotation = entity.GetComponent<TransformComponent>();
             RigBodyComponent rigBody = entity.GetComponent<RigBodyComponent>();

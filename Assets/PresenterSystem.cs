@@ -20,7 +20,7 @@ public class PresenterSystem : IEcsSystem
         
     public void Update(float deltaTime, EcsWorld world)
     {
-        foreach (EcsEntity entity in world.Filter(_transformsFilter))
+        foreach (IEcsEntity entity in world.Filter(_transformsFilter))
         {
             TransformComponent transform = entity.GetComponent<TransformComponent>();
             CharacterComponent character = entity.GetComponent<CharacterComponent>();
@@ -29,7 +29,7 @@ public class PresenterSystem : IEcsSystem
             character.Ref.Transform.rotation = Quaternion.Euler(0, -Mathf.Rad2Deg * transform.Rotation, 0);
         }
 
-        foreach (EcsEntity entity in world.Filter(_rayFilter))
+        foreach (IEcsEntity entity in world.Filter(_rayFilter))
         {
             RayComponent ray = entity.GetComponent<RayComponent>();
             CharacterComponent character = entity.GetComponent<CharacterComponent>();
@@ -41,7 +41,7 @@ public class PresenterSystem : IEcsSystem
             character.Ref.Ray.localPosition = 0.5f * distance * Vector3.forward;
         }
 
-        foreach (EcsEntity entity in world.Filter(_heroFilter))
+        foreach (IEcsEntity entity in world.Filter(_heroFilter))
         {
             CharacterComponent character = entity.GetComponent<CharacterComponent>();
 
