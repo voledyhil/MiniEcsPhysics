@@ -10,11 +10,11 @@ namespace Physics
     {
         public readonly int Id;
         public int Length;
-        public bool NeedRebuild;
+        public int FreeIndex = int.MaxValue;
+        public int PairLength;
         
         public BroadphaseAABB[] Items = new BroadphaseAABB[32];
         public BroadphasePair[] Pairs = new BroadphasePair[32];
-        public int PairLength;
         public int SortAxis;
         public int DynamicCounter;
         public bool IsDirty = true;
@@ -92,25 +92,12 @@ namespace Physics
         
         public static void BuildChunks(SAPChunk chunk)
         {
-            chunk.NeedRebuild = false;
-            
-            int freeIndex = int.MaxValue;
-            
             int length = chunk.Length;
-            BroadphaseAABB[] items = chunk.Items;
-            
-            for (int i = 0; i < length; i++)
-            {
-                if (items[i].Id != uint.MaxValue) 
-                    continue;
-                
-                freeIndex = i;
-                break;
-            }
-
+            int freeIndex = chunk.FreeIndex;
             if (freeIndex >= length)
                 return;
 
+            BroadphaseAABB[] items = chunk.Items;
             int current = freeIndex + 1;
             while (current < length)
             {
@@ -122,6 +109,7 @@ namespace Physics
             }
             
             chunk.Length = freeIndex;
+            chunk.FreeIndex = int.MaxValue;
         }
 
         public static void RemoveFormChunk(SAPChunk chunk, uint entityId)
@@ -139,7 +127,7 @@ namespace Physics
             item.Entity = null;
             
             chunk.Items[index] = item;
-            chunk.NeedRebuild = true;
+            chunk.FreeIndex = math.min(chunk.FreeIndex, index);
         }
 
         public static int CalculateChunksHash(AABB aabb)

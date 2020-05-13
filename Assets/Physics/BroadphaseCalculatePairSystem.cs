@@ -26,8 +26,7 @@ namespace Physics
             bpChunks.Pairs.Clear();
             foreach (SAPChunk chunk in bpChunks.Chunks.Values)
             {
-                if (chunk.NeedRebuild)
-                    BroadphaseHelper.BuildChunks(chunk);
+                BroadphaseHelper.BuildChunks(chunk);
 
                 if (chunk.DynamicCounter > 0 || chunk.IsDirty)
                 {
