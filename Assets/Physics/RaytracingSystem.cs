@@ -24,11 +24,8 @@ namespace Physics
         {
             BroadphaseSAPComponent bpChunks = world.GetOrCreateSingleton<BroadphaseSAPComponent>();
 
-            foreach (IEcsEntity entity in world.Filter(_rayFilter))
+            world.Filter(_rayFilter).ForEach((IEcsEntity entity, TransformComponent tr, RayComponent ray) =>
             {
-                TransformComponent tr = entity.GetComponent<TransformComponent>();
-                RayComponent ray = entity.GetComponent<RayComponent>();
-
                 ray.Hit = false;
                 ray.Source = tr.Position;
                 ray.Rotation = tr.Rotation;
@@ -83,7 +80,7 @@ namespace Physics
                     ray.Hit = true;
                     break;
                 }
-            }
+            });
         }
 
         private static void RayTrace(RayComponent ray, ref int[] chunks, ref float2[] points, out int length)

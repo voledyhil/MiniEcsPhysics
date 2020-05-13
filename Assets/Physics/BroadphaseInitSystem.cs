@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using MiniEcs.Core;
 using MiniEcs.Core.Systems;
 
@@ -19,12 +18,13 @@ namespace Physics
         
         public unsafe void Update(float deltaTime, EcsWorld world)
         {
-            BroadphaseSAPComponent bpChunks = world.GetOrCreateSingleton<BroadphaseSAPComponent>(); 
-            
-            List<IEcsEntity> entities = world.Filter(_entitiesFilter).ToList();
+            BroadphaseSAPComponent bpChunks = world.GetOrCreateSingleton<BroadphaseSAPComponent>();
 
-            foreach (IEcsEntity entity in entities)
+            IEcsEntity[] entities = world.Filter(_entitiesFilter).ToEntityArray();
+
+            for (int i = 0; i < entities.Length; i++)
             {
+                IEcsEntity entity = entities[i];
                 uint entityId = entity.Id;
 
                 TransformComponent tr = entity.GetComponent<TransformComponent>();
@@ -40,7 +40,7 @@ namespace Physics
                 {
                     chunks.Add(BroadphaseHelper.GetOrCreateChunk(chunkId, bpChunks));
                 }
-                
+
                 BroadphaseRefComponent bpRef = new BroadphaseRefComponent
                 {
                     Chunks = chunks,
@@ -53,7 +53,7 @@ namespace Physics
                 {
                     if (chunk.Length >= chunk.Items.Length)
                         Array.Resize(ref chunk.Items, 2 * chunk.Length);
-                    
+
                     fixed (AABB* pAABB = &bpRef.AABB)
                     {
                         chunk.Items[chunk.Length++] = new BroadphaseAABB

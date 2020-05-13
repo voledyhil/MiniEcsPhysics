@@ -54,14 +54,14 @@ public class CreatorSystem : IEcsSystem
 		IEcsGroup group = world.Filter(filter);
 		if (group.CalculateCount() == count) 
 			return;
-			
-		List<IEcsEntity> entities = group.ToList();
-		for (int i = entities.Count; i < count; i++)
+
+		IEcsEntity[] entities = group.ToEntityArray();
+		for (int i = entities.Length; i < count; i++)
 		{
 			createEntity(world);
 		}
 			
-		for (int i = count; i < entities.Count; i++)
+		for (int i = count; i < entities.Length; i++)
 		{
 			IEcsEntity entity = entities[i];
 			BroadphaseRefComponent brRef = entity.GetComponent<BroadphaseRefComponent>();

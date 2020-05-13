@@ -13,33 +13,29 @@ public class InputSystem : IEcsSystem
     {
         _heroFilter = new EcsFilter().AllOf<TransformComponent, RigBodyComponent, HeroComponent>();
     }
-        
+
     public void Update(float deltaTime, EcsWorld world)
     {
-        foreach (IEcsEntity entity in world.Filter(_heroFilter))
+        world.Filter(_heroFilter).ForEach((IEcsEntity entity, TransformComponent transform, RigBodyComponent rigBody) =>
         {
-            TransformComponent rotation = entity.GetComponent<TransformComponent>();
-            RigBodyComponent rigBody = entity.GetComponent<RigBodyComponent>();
-		
             if (Input.GetKey(KeyCode.A))
             {
-                rotation.Rotation += 2 * deltaTime;
+                transform.Rotation += 2 * deltaTime;
             }
 
             if (Input.GetKey(KeyCode.D))
             {
-                rotation.Rotation -= 2 * deltaTime;
+                transform.Rotation -= 2 * deltaTime;
             }
 
             rigBody.Velocity = float2.zero;
 
-            if (!Input.GetKey(KeyCode.W)) 
-                continue;
-                
-            float rad = rotation.Rotation;
+            if (!Input.GetKey(KeyCode.W))
+                return;
+
+            float rad = transform.Rotation;
             float2 dir = new float2(-math.sin(rad), math.cos(rad));
             rigBody.Velocity = 25 * dir;
-        }
-            
+        });
     }
 }

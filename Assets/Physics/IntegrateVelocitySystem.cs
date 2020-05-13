@@ -17,13 +17,10 @@ namespace Physics
 
         public void Update(float deltaTime, EcsWorld world)
         {
-            foreach (IEcsEntity entity in world.Filter(_filter))
+            world.Filter(_filter).ForEach((IEcsEntity entity, TransformComponent transform, RigBodyComponent rigBody) =>
             {
-                TransformComponent transform = entity.GetComponent<TransformComponent>();
-                RigBodyComponent rigBody = entity.GetComponent<RigBodyComponent>();
-
                 transform.Position += rigBody.Velocity * deltaTime;
-            }
+            });
         }
     }
 }
