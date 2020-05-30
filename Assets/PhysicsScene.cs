@@ -38,6 +38,21 @@ public class PhysicsScene : MonoBehaviour
 	
 	private void Start()
 	{
+		EcsComponentType<TransformComponent>.Register();
+		EcsComponentType<RigBodyComponent>.Register();
+		EcsComponentType<ColliderComponent>.Register();
+		EcsComponentType<RigBodyStaticComponent>.Register();
+		EcsComponentType<BroadphaseRefComponent>.Register();
+		EcsComponentType<BroadphaseSAPComponent>.Register();
+		EcsComponentType<RayComponent>.Register();
+		
+		EcsComponentType<HeroComponent>.Register();
+		EcsComponentType<CharacterComponent>.Register();
+		EcsComponentType<StaticRectComponent>.Register();
+		EcsComponentType<StaticCircleComponent>.Register();
+		EcsComponentType<BlueCircleComponent>.Register();
+		EcsComponentType<YellowCircleComponent>.Register();
+		
 		_world = new EcsWorld();
 
 		_engine = new EcsSystemGroup();

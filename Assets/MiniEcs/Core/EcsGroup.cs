@@ -1,46 +1,57 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
 namespace MiniEcs.Core
 {
-    public delegate void ForEachEHandler(IEcsEntity entity);
+    public delegate void ForEachEntityHandler(IEcsEntity entity);
 
     public delegate void ForEachArchetypeHandler(IEcsArchetype archetype);
 
-    public delegate void ForEachEcHandler<in TC0>(IEcsEntity entity, TC0 comp0) where TC0 : IEcsComponent;
+    public delegate void ForEachECHandler<in TC0>(IEcsEntity entity, TC0 comp0) 
+        where TC0 : class, IEcsComponent, new();
 
-    public delegate void ForEachEccHandler<in TC0, in TC1>(IEcsEntity entity, TC0 comp0, TC1 comp1)
-        where TC0 : IEcsComponent where TC1 : IEcsComponent;
+    public delegate void ForEachECCHandler<in TC0, in TC1>(IEcsEntity entity, TC0 comp0, TC1 comp1)
+        where TC0 : class, IEcsComponent, new() 
+        where TC1 : class, IEcsComponent, new();
 
-    public delegate void ForEachEcccHandler<in TC0, in TC1, in TC2>(IEcsEntity entity, TC0 comp0, TC1 comp1, TC2 comp2)
-        where TC0 : IEcsComponent where TC1 : IEcsComponent where TC2 : IEcsComponent;
+    public delegate void ForEachECCCHandler<in TC0, in TC1, in TC2>(IEcsEntity entity, TC0 comp0, TC1 comp1, TC2 comp2)
+        where TC0 : class, IEcsComponent, new()
+        where TC1 : class, IEcsComponent, new()
+        where TC2 : class, IEcsComponent, new();
 
-    public delegate void ForEachEccccHandler<in TC0, in TC1, in TC2, in TC3>(IEcsEntity entity, TC0 comp0, TC1 comp1,
-        TC2 comp2, TC3 comp3) where TC0 : IEcsComponent
-        where TC1 : IEcsComponent
-        where TC2 : IEcsComponent
-        where TC3 : IEcsComponent;
+    public delegate void ForEachECCCCHandler<in TC0, in TC1, in TC2, in TC3>(IEcsEntity entity, TC0 comp0, TC1 comp1,
+        TC2 comp2, TC3 comp3) 
+        where TC0 : class, IEcsComponent, new()
+        where TC1 : class, IEcsComponent, new()
+        where TC2 : class, IEcsComponent, new()
+        where TC3 : class, IEcsComponent, new();
 
     /// <summary>
     /// collection of archetypes matching filter criteria
     /// </summary>
-    public interface IEcsGroup
+    public interface IEcsGroup : IEnumerable<IEcsArchetype>
     {
         int CalculateCount();
 
         void ForEach(ForEachArchetypeHandler handler);
-        void ForEach(ForEachEHandler handler);
-        void ForEach<TC0>(ForEachEcHandler<TC0> handler) where TC0 : IEcsComponent;
-        void ForEach<TC0, TC1>(ForEachEccHandler<TC0, TC1> handler) where TC0 : IEcsComponent where TC1 : IEcsComponent;
+        void ForEach(ForEachEntityHandler handler);
+        void ForEach<TC0>(ForEachECHandler<TC0> handler) 
+            where TC0 : class, IEcsComponent, new();
 
-        void ForEach<TC0, TC1, TC2>(ForEachEcccHandler<TC0, TC1, TC2> handler) where TC0 : IEcsComponent
-            where TC1 : IEcsComponent
-            where TC2 : IEcsComponent;
+        void ForEach<TC0, TC1>(ForEachECCHandler<TC0, TC1> handler) 
+            where TC0 : class, IEcsComponent, new()
+            where TC1 : class, IEcsComponent, new();
 
-        void ForEach<TC0, TC1, TC2, TC3>(ForEachEccccHandler<TC0, TC1, TC2, TC3> handler) where TC0 : IEcsComponent
-            where TC1 : IEcsComponent
-            where TC2 : IEcsComponent
-            where TC3 : IEcsComponent;
+        void ForEach<TC0, TC1, TC2>(ForEachECCCHandler<TC0, TC1, TC2> handler) where TC0 : class, IEcsComponent, new()
+            where TC1 : class, IEcsComponent, new()
+            where TC2 : class, IEcsComponent, new();
+
+        void ForEach<TC0, TC1, TC2, TC3>(ForEachECCCCHandler<TC0, TC1, TC2, TC3> handler)
+            where TC0 : class, IEcsComponent, new()
+            where TC1 : class, IEcsComponent, new()
+            where TC2 : class, IEcsComponent, new()
+            where TC3 : class, IEcsComponent, new();
 
         IEcsEntity[] ToEntityArray();
     }
@@ -144,7 +155,7 @@ namespace MiniEcs.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void ForEach(ForEachEHandler handler)
+        public void ForEach(ForEachEntityHandler handler)
         {
             ForEach(archetype =>
             {
@@ -156,7 +167,7 @@ namespace MiniEcs.Core
             });
         }
 
-        void IEcsGroup.ForEach<TC0>(ForEachEcHandler<TC0> handler)
+        void IEcsGroup.ForEach<TC0>(ForEachECHandler<TC0> handler)
         {
             ForEach(archetype =>
             {
@@ -171,7 +182,7 @@ namespace MiniEcs.Core
         }
 
 
-        void IEcsGroup.ForEach<TC0, TC1>(ForEachEccHandler<TC0, TC1> handler)
+        void IEcsGroup.ForEach<TC0, TC1>(ForEachECCHandler<TC0, TC1> handler)
         {
             ForEach(archetype =>
             {
@@ -186,7 +197,7 @@ namespace MiniEcs.Core
             });
         }
 
-        void IEcsGroup.ForEach<TC0, TC1, TC2>(ForEachEcccHandler<TC0, TC1, TC2> handler)
+        void IEcsGroup.ForEach<TC0, TC1, TC2>(ForEachECCCHandler<TC0, TC1, TC2> handler)
         {
             ForEach(archetype =>
             {
@@ -202,7 +213,7 @@ namespace MiniEcs.Core
             });
         }
 
-        void IEcsGroup.ForEach<TC0, TC1, TC2, TC3>(ForEachEccccHandler<TC0, TC1, TC2, TC3> handler)
+        void IEcsGroup.ForEach<TC0, TC1, TC2, TC3>(ForEachECCCCHandler<TC0, TC1, TC2, TC3> handler)
         {
             ForEach(archetype =>
             {
@@ -218,6 +229,16 @@ namespace MiniEcs.Core
                         comps3.GetTyped(j));
                 }
             });
+        }
+
+        public IEnumerator<IEcsArchetype> GetEnumerator()
+        {
+            return _archetypes.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
     }
 }
